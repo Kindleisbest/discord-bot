@@ -24,7 +24,7 @@ Requested by Andrew, 2026-09-08. Work through the stages in order, save complete
 ## Stages
 
 1. [x] Secure foundation: configuration, persistent database, Discord OAuth sessions, live role checks, server isolation, owner override, permission editor, accessible dashboard shell, health checks, security tests.
-2. [ ] Bot gateway, slash /help and private /contact, latest activity, website message composer.
+2. [x] Bot gateway, slash /help, /dashboard and /ping, latest activity, reviewed website composer. /contact belongs to the staff inbox stage.
 3. [ ] Staff DM inbox, replies, per-server routing, audit capture, 90-day purge, safe export.
 4. [ ] Events with graphics and announcements; configurable member tutorials and admin onboarding.
 5. [ ] Instagram integration using supported account access and explicit setup.
@@ -38,9 +38,9 @@ Stage 1 implemented: 66 security tests pass, frontend/server typechecks pass, pr
 
 GitHub: user created https://github.com/Kindleisbest/discord-bot, public, initial README commit 7625abe87bc7e286a2431e69131a29503429bb14. CLI auth remains invalid; use authenticated GitHub connector for writes. Stage 1 saved and verified at commit `6f02ca16005a5f681d90ff33e8ea3b344e0f3948`.
 
-Stage 2 implementation checkpoint: Guilds-only bot lifecycle, permission-aware /help, /dashboard and /ping (ephemeral, removed after 120 seconds), safe channel message sending, review-first website composer, per-server delivery tracking, restart recovery for uncertain sends, and server removal cleanup. All 94 tests pass; frontend/server typechecks and production build pass. Live Discord remains untested without credentials. Stage 2 browser QA remains pending; do not mark stage 2 fully complete until it passes.
+Stage 2 implementation checkpoint: Guilds-only bot lifecycle, permission-aware /help, /dashboard and /ping (ephemeral, removed after 120 seconds), safe channel message sending, review-first website composer, per-server delivery tracking, restart recovery for uncertain sends, and server removal cleanup. All 94 tests pass; frontend/server typechecks and production build pass. Live Discord remains untested without credentials. Stage 2 browser QA passed on 2026-09-09 with an isolated fake Discord adapter: sign-in, skip/reset onboarding, server/channel selection, review, simulated send confirmation, and mobile width (390px, no horizontal overflow). No real Discord messages were sent. Screenshot: docs/design/composer-verified.png.
 
-NEXT RESUME: rebuild/start the normal app; run an isolated fake-Discord UI harness to check sign-in walkthrough skip/reset, select server, Messages channel selection, Review -> Send, delivery result/status, keyboard flow and mobile layout. The previous harness used port 3001, in-memory data, and a fake Discord adapter; it is temporary and not shipped. Then finish stage 2 docs/checkpoint and begin stage 3 staff DM inbox with explicit per-server routing, followed by opt-in message audit, 90-day purge/export. /contact is intentionally deferred until modmail works. Leveling questionnaire remains required before leveling; final PDF remains deferred until completed deployment.
+NEXT: begin stage 3 staff DM inbox with explicit per-server routing, followed by opt-in message audit, 90-day purge/export. /contact is intentionally deferred until modmail works. Leveling questionnaire remains required before leveling; final PDF remains deferred until completed deployment.
 
 Stage 2 data migration is schema version 2. Delivery records retain hashes/metadata, not plaintext message bodies. Never automatically replay an uncertain send. Production still has no login bypass. Repository is public; keep real configuration and runtime data out. GitHub CLI auth is invalid, so use the connector Git Data create_tree/create_commit/update_ref flow (non-force) to save snapshots. Keep local original commits on foundation-local-checkpoints backup branch if aligning local history to connector commits.
 
@@ -52,3 +52,5 @@ Node.js 24 LTS + TypeScript, Fastify serving a prebuilt React/Vite frontend, dis
 
 
 Latest usage checkpoint: 94% of five-hour allowance used (6% remaining), 47% weekly used. Finish saving this checkpoint and pause under the user's 5% rule. Do not redeem a reset.
+
+Stage 2 code saved remotely as 2815a5307eb4391d8f82802e5fac64f61a0e45f5. User resumed again; allowance reset to 1% used. Continue stage 3 after saving the browser verification note.

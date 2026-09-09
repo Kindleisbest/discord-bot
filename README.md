@@ -1,6 +1,6 @@
 # Discord Bot
 
-A Raspberry Pi-friendly Discord management bot and accessible administration website. **In development: stages 1–2; stage 2 browser verification pending. This is not yet the complete management bot.**
+A Raspberry Pi-friendly Discord management bot and accessible administration website. **In development: stages 1–2 implemented; live Discord setup still pending. This is not yet the complete management bot.**
 
 ## Implemented
 
@@ -31,7 +31,7 @@ The optional frontend development server is `npm run dev:web`; the backend is `n
 
 ## Development stages
 
-See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete request and current resume point. Next: finish composer browser verification, then staff DM inbox and 90-day message audit, events, tutorials, Instagram-link embeds, leveling after the questionnaire, deployment hardening, and the final illustrated Raspberry Pi installation PDF.
+See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete request and current resume point. Next: staff DM inbox and 90-day message audit, events, tutorials, Instagram-link embeds, leveling after the questionnaire, deployment hardening, and the final illustrated Raspberry Pi installation PDF.
 
 Tests use a fake Discord adapter to exercise security decisions without credentials. Live OAuth, a Discord test server, Raspberry Pi load, and public deployment still require validation. No claim of complete security or accessibility certification is made.
 
