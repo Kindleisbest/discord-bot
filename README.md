@@ -1,1 +1,38 @@
-# discord-bot
+# Discord Bot
+
+A Raspberry Pi-friendly Discord management bot and accessible administration website. **In development: stage 1 foundation. This is not yet the complete management bot.**
+
+## Implemented
+
+- Discord OAuth login with single-use, browser-bound state. No password login or demo bypass.
+- Current Discord Administrator permission AND authentication; server owners retain full control without needing a role.
+- Per-server website capabilities, strictly lower-role delegation, protection against changing your own roles or granting capabilities you lack.
+- Encrypted server-side OAuth sessions, hashed session IDs, 30-minute idle and 8-hour absolute expiry, logout/revocation, CSRF/origin checks, security headers, rate limits, prepared SQL.
+- Accessible dashboard shell, server selection, activity, role editor, first-login walkthrough with skip/reset, accessibility and privacy statements.
+- SQLite activity retention and security tests. Message archiving itself is a later stage.
+
+## Local development
+
+Requires Node.js **24.14 or newer within 24 LTS**, and npm. Raspberry Pi target: **Pi 3 B+ with 64-bit Raspberry Pi OS Lite**. Actual Pi performance has not yet been measured.
+
+```sh
+npm ci
+npm run check
+npm start
+```
+
+Open http://127.0.0.1:3000. Without credentials, only the setup screen is available. No live Discord actions occur. `npm run build` must run before `npm start`.
+
+For OAuth testing, copy `.env.example` to `.env` and fill all four credential/key placeholders locally. Follow [the foundation setup notes](docs/SETUP.md). Never commit `.env`, tokens, databases, exports, or backups. Production mode refuses missing credentials and non-HTTPS origins. The service binds only to loopback. Do not expose a development server or forward a router port to it.
+
+The optional frontend development server is `npm run dev:web`; the backend is `npm run dev`. Use the compiled same-origin site for authentication and mutation testing unless you set `APP_ORIGIN=http://127.0.0.1:5173` and register that exact callback for development.
+
+## Development stages
+
+See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete request and current resume point. Next: gateway/slash commands and message composer, then staff DM inbox and 90-day message audit, events, tutorials, Instagram-link embeds, leveling after the questionnaire, deployment hardening, and the final illustrated Raspberry Pi installation PDF.
+
+Tests use a fake Discord adapter to exercise security decisions without credentials. Live OAuth, a Discord test server, Raspberry Pi load, and public deployment still require validation. No claim of complete security or accessibility certification is made.
+
+## Security
+
+See [SECURITY.md](SECURITY.md). No paid service or AI API is needed. Cloudflare alone is not the security boundary. A stable free address and secure Cloudflare-compatible deployment path will be decided during deployment; a free registrable domain is not guaranteed.
