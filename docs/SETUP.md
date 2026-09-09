@@ -1,6 +1,6 @@
 # Foundation setup notes — not the final installation guide
 
-These notes enable testing of stage 1. The final multi-page illustrated Raspberry Pi guide is deliberately deferred until all features and deployment are complete.
+These notes enable testing of the foundation and command/composer checkpoint. The final multi-page illustrated Raspberry Pi guide is deliberately deferred until all features and deployment are complete.
 
 1. Install Node.js 24 LTS from the official Node.js distribution on a development computer. Check that the version is at least 24.14 and below 25.
 2. Open a terminal in this repository. Run `npm ci`, then `npm run check`.
@@ -10,7 +10,7 @@ These notes enable testing of stage 1. The final multi-page illustrated Raspberr
 6. Under **OAuth2**, obtain the client secret and put it into `DISCORD_CLIENT_SECRET`. Register exactly `http://127.0.0.1:3000/auth/callback` for local compiled-site testing. The scheme, hostname, port and path must match.
 7. Under **Bot**, obtain/reset the bot token and put it into `DISCORD_BOT_TOKEN`. Treat it as a password. Do not paste it into chat or GitHub.
 8. Generate the encryption key locally with `node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))"` and put the entire single-line result into `DATA_ENCRYPTION_KEY`.
-9. Install your application into a private Discord test server you own using the portal's guild install link and bot scope. Stage 1 only reads the bot-accessible server, roles, and current member; it does not require granting the bot Administrator. Commands, gateway intents and granular channel permissions will be added in the next stage.
+9. Install your application into a private Discord test server you own using the portal's guild install link and bot scope. Use the bot and applications.commands scopes. Grant View Channels and Send Messages only in the channels where the bot should post; do not grant the bot Administrator. This stage requests only the Guilds gateway intent. It does not require Message Content yet. Commands /help, /dashboard and /ping are upserted when the bot connects; global command availability may take time to update.
 10. Run `npm run build`, then `npm start`. Open `http://127.0.0.1:3000` and select **Continue with Discord**. Use the same hostname used in the callback.
 11. The owner should enter even without roles. Another account must have Discord's actual Administrator permission; a role merely named Administrator is insufficient.
 12. As owner, select your server, open **Permissions**, and grant the desired website capabilities to admin roles. These settings do not alter Discord roles or bypass the Administrator gate.

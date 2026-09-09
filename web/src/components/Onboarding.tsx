@@ -8,7 +8,7 @@ const STEPS = [
   { title: 'Choose a server', text: 'Use the Server menu at the top of the page. Only servers where you are the owner or have Discord Administrator permission, and where the bot can verify access, are available. Each server has its own workspace.' },
   { title: 'Understand your access', text: 'Signing in verifies your Discord account. The service also checks your current membership and Administrator permission. Owners always retain full website access, even without a role.' },
   { title: 'Set up role permissions', text: 'Open Permissions to configure website access. Owners can manage every role. Delegated administrators can manage eligible lower roles, using only permissions they already have. Website grants never change Discord roles.' },
-  { title: 'Review administration activity', text: 'Overview shows the selected server’s latest recorded website activity. The foundation records permission changes. Member messaging, staff inbox, audit, and events will be added in later stages.' },
+  { title: 'Review administration activity', text: 'Overview shows the selected server’s latest recorded website activity. Activity records bot connections, command setup, channel message deliveries, and permission changes. Authorized administrators can use Messages to review and send through the bot. The staff inbox, message audit, and events will be added in later stages.' },
   { title: 'You are ready to begin', text: 'Choose your server and review Permissions. Setup guide is always available at the top of the page. Accessibility and privacy information are linked in the footer. Use Reset tutorial to take this walkthrough again.' },
 ];
 

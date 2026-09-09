@@ -12,10 +12,12 @@ import { DiscordError, type DiscordApi } from './discord.js';
 import { Store, type SessionData } from './store.js';
 import { assertGrantChange, resolveAccess } from './permissions.js';
 import { PERMISSIONS, type Permission } from '../shared/permissions.js';
+import { BotUnavailableError, type BotService } from './bot/types.js';
+import { deliverMessage, DeliveryConflictError, publicDelivery } from './messages.js';
 
 class HttpError extends Error { constructor(readonly statusCode:number,message:string) { super(message); } }
 const snowflake = z.string().regex(/^\d{17,20}$/);
-export async function buildApp(config:Config,store:Store,discord:DiscordApi) {
+export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?:BotService) {
   const app = Fastify({logger:false,trustProxy:false,bodyLimit:16_384,requestTimeout:30_000});
   const sessionCookie = config.production ? '__Host-dm_session' : 'dm_session';
   const stateCookie = config.production ? '__Host-dm_oauth' : 'dm_oauth';
@@ -53,6 +55,8 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi) {
     }
   });
   app.setErrorHandler((error,request,reply)=>{
+    if(error instanceof BotUnavailableError)return reply.code(503).send({error:'The bot is offline. Wait for it to reconnect before sending.'});
+    if(error instanceof DeliveryConflictError)return reply.code(409).send({error:error.message});
     if (error instanceof z.ZodError) return reply.code(400).send({error:'Check the request fields and try again.'});
     if (error instanceof DiscordError) {
       if (error.status === 401) {
@@ -67,7 +71,7 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi) {
     return reply.code(status >= 400 && status < 600 ? status : 500).send({error:error instanceof HttpError ? error.message : status === 429 ? 'Too many requests. Please wait a minute.' : status === 413 ? 'This request is too large.' : 'The request could not be completed.'});
   });
   app.get('/healthz',async()=>({ok:true}));
-  app.get('/api/status',async()=>({configured:config.configured,service:'discord-bot',stage:1}));
+  app.get('/api/status',async()=>({configured:config.configured,service:'discord-bot',stage:2}));
   app.get('/auth/login',{config:{rateLimit:{max:5,timeWindow:'1 minute'}}},async(request,reply)=>{
     if (!config.configured) throw new HttpError(503,'Discord sign-in has not been configured yet.');
     const state=randomToken(), binding=randomToken();
@@ -134,6 +138,25 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi) {
   });
   app.get('/api/guilds/:guildId/activity',async(request)=>{
     const c=await context(request,'activity.view'); return {activity:store.getActivity(c.guild.id)};
+  });
+  app.get('/api/guilds/:guildId/channels',async(request)=>{
+    const c=await context(request,'messages.send');
+    if(!bot || bot.status().state!=='ready')return {channels:[],bot:bot?.status() ?? {state:'not_configured',lastReadyAt:null}};
+    return {channels:await bot.listSendableChannels(c.guild.id),bot:bot.status()};
+  });
+  app.post('/api/guilds/:guildId/messages',{config:{rateLimit:{max:5,timeWindow:'1 minute'}}},async(request)=>{
+    const c=await context(request,'messages.send');
+    const body=z.object({channelId:snowflake,content:z.string().trim().min(1).max(2000),requestId:z.string().uuid()}).strict().parse(request.body);
+    if(!bot)throw new BotUnavailableError();
+    const delivery=await deliverMessage(store,bot,{...body,guildId:c.guild.id,actorId:c.data.user.id});
+    return {delivery:publicDelivery(delivery)};
+  });
+  app.get('/api/guilds/:guildId/messages/:requestId',async(request)=>{
+    const c=await context(request,'messages.send');
+    const {requestId}=z.object({requestId:z.string().uuid()}).parse(request.params);
+    const delivery=store.getDelivery(c.guild.id,requestId);
+    if(!delivery || (delivery.actorId!==c.data.user.id && !c.access.isOwner))throw new HttpError(404,'That delivery was not found.');
+    return {delivery:publicDelivery(delivery)};
   });
   app.put('/api/guilds/:guildId/permissions/:roleId',async(request)=>{
     const c=await context(request,'permissions.manage');

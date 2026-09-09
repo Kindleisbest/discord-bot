@@ -1,6 +1,6 @@
 # Discord Bot
 
-A Raspberry Pi-friendly Discord management bot and accessible administration website. **In development: stage 1 foundation. This is not yet the complete management bot.**
+A Raspberry Pi-friendly Discord management bot and accessible administration website. **In development: stages 1–2; stage 2 browser verification pending. This is not yet the complete management bot.**
 
 ## Implemented
 
@@ -9,7 +9,9 @@ A Raspberry Pi-friendly Discord management bot and accessible administration web
 - Per-server website capabilities, strictly lower-role delegation, protection against changing your own roles or granting capabilities you lack.
 - Encrypted server-side OAuth sessions, hashed session IDs, 30-minute idle and 8-hour absolute expiry, logout/revocation, CSRF/origin checks, security headers, rate limits, prepared SQL.
 - Accessible dashboard shell, server selection, activity, role editor, first-login walkthrough with skip/reset, accessibility and privacy statements.
-- SQLite activity retention and security tests. Message archiving itself is a later stage.
+- Guilds-only bot connection, ephemeral `/help`, `/dashboard`, and `/ping`, with permission-aware help and two-minute reply deletion.
+- Website channel composer with draft review, disabled mention pings, durable duplicate-send protection, delivery status checks, and uncertain-send recovery.
+- SQLite activity retention and 94 passing security/behavior tests. Message archiving itself is a later stage.
 
 ## Local development
 
@@ -29,7 +31,7 @@ The optional frontend development server is `npm run dev:web`; the backend is `n
 
 ## Development stages
 
-See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete request and current resume point. Next: gateway/slash commands and message composer, then staff DM inbox and 90-day message audit, events, tutorials, Instagram-link embeds, leveling after the questionnaire, deployment hardening, and the final illustrated Raspberry Pi installation PDF.
+See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete request and current resume point. Next: finish composer browser verification, then staff DM inbox and 90-day message audit, events, tutorials, Instagram-link embeds, leveling after the questionnaire, deployment hardening, and the final illustrated Raspberry Pi installation PDF.
 
 Tests use a fake Discord adapter to exercise security decisions without credentials. Live OAuth, a Discord test server, Raspberry Pi load, and public deployment still require validation. No claim of complete security or accessibility certification is made.
 

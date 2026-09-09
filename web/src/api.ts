@@ -16,6 +16,15 @@ export interface GuildDetail {
   editableRoleIds: string[];
 }
 export interface Activity { id: string; actorId: string; action: string; targetId: string | null; createdAt: number }
+export interface MessageChannel { id: string; name: string; type: 0 | 5 }
+export interface ChannelResponse {
+  channels: MessageChannel[];
+  bot: { state: 'not_configured' | 'connecting' | 'ready' | 'disconnected'; lastReadyAt: number | null };
+}
+export interface MessageDelivery {
+  requestId: string; status: 'pending' | 'sent' | 'failed' | 'uncertain';
+  channelId: string; messageId: string | null; createdAt: number; error: string | null;
+}
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) { super(message); }

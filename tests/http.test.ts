@@ -1,14 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { randomBytes } from 'node:crypto';
+import { randomBytes,randomUUID } from 'node:crypto';
 import { readConfig } from '../server/config.js';
 import { Vault } from '../server/crypto.js';
 import { Store } from '../server/store.js';
 import { buildApp } from '../server/app.js';
 import { DiscordError, type DiscordApi } from '../server/discord.js';
+import type { BotService } from '../server/bot/types.js';
 
 const guildId='11111111111111111', otherGuild='22222222222222222', userId='33333333333333333', adminRole='44444444444444444', lowerRole='55555555555555555';
-async function fixture(owner=true) {
+async function fixture(owner=true,bot?:BotService) {
   const config=readConfig({NODE_ENV:'test',DISCORD_CLIENT_ID:guildId,DISCORD_CLIENT_SECRET:'test-client-secret',DISCORD_BOT_TOKEN:'test-bot-token',DATA_ENCRYPTION_KEY:randomBytes(32).toString('base64')});
   const store=new Store(':memory:',new Vault(config.DATA_ENCRYPTION_KEY));
   const user={id:userId,username:'Test admin',avatar:null};
@@ -22,7 +23,7 @@ async function fixture(owner=true) {
     guildContext:async(id)=>{if(id!==guildId)throw new DiscordError(403);return live;},
     revoke:async()=>{},
   };
-  const app=await buildApp(config,store,discord);
+  const app=await buildApp(config,store,discord,bot);
   const issued=store.createSession({user,accessToken:'secret-access-token'},3600_000);
   const headers={cookie:`dm_session=${issued.id}`,origin:config.APP_ORIGIN,'x-csrf-token':issued.data.csrfToken};
   return {app,store,discord,live,headers,exchanged:()=>exchanged,close:async()=>{await app.close();store.close();}};
@@ -112,5 +113,23 @@ test('unexpected fields, unknown capabilities, and oversized requests are reject
       assert.ok([400,413].includes(result.statusCode));
     }
     assert.deepEqual(f.store.getGrants(guildId),[]);
+  }finally{await f.close();}
+});
+test('message routes enforce website grants and CSRF before any bot send',async()=>{
+  let sent=0;
+  const bot:BotService={status:()=>({state:'ready',lastReadyAt:null}),listSendableChannels:async()=>[{id:lowerRole,name:'general',type:0}],sendMessage:async()=>{sent++;return {id:'66666666666666666',channelId:lowerRole};},stop:async()=>{}};
+  const f=await fixture(false,bot);try{
+    const body={channelId:lowerRole,content:'test message',requestId:randomUUID()};
+    const url=`/api/guilds/${guildId}/messages`;
+    assert.equal((await f.app.inject({method:'POST',url,headers:f.headers,payload:body})).statusCode,403);
+    f.store.setGrant(guildId,adminRole,['messages.send'],userId);
+    assert.equal((await f.app.inject({method:'POST',url,headers:{...f.headers,'x-csrf-token':'wrong'},payload:body})).statusCode,403);
+    assert.equal(sent,0);
+    const result=await f.app.inject({method:'POST',url,headers:f.headers,payload:body});
+    assert.equal(result.statusCode,200);assert.equal(result.json().delivery.status,'sent');assert.equal(sent,1);
+    const check=await f.app.inject({url:`${url}/${body.requestId}`,headers:f.headers});
+    assert.equal(check.statusCode,200);assert.equal(sent,1);
+    f.live.memberRoleIds=[];
+    assert.equal((await f.app.inject({url:`${url}/${body.requestId}`,headers:f.headers})).statusCode,403);
   }finally{await f.close();}
 });

@@ -36,12 +36,19 @@ Requested by Andrew, 2026-09-08. Work through the stages in order, save complete
 
 Stage 1 implemented: 66 security tests pass, frontend/server typechecks pass, production asset build passes. Desktop (1505×1045) and mobile (390×844) browser checks pass for setup screen, locked permissions, footer link, and responsive overflow. No Discord credentials requested or used: live OAuth/server tests remain for installation. Admin first-login skip/reset walkthrough also implemented as part of the foundation.
 
-GitHub: user created https://github.com/Kindleisbest/discord-bot, public, initial README commit 7625abe87bc7e286a2431e69131a29503429bb14. CLI auth remains invalid; use authenticated GitHub connector for writes. Stage 1 is being saved as the next commit.
+GitHub: user created https://github.com/Kindleisbest/discord-bot, public, initial README commit 7625abe87bc7e286a2431e69131a29503429bb14. CLI auth remains invalid; use authenticated GitHub connector for writes. Stage 1 saved and verified at commit `6f02ca16005a5f681d90ff33e8ea3b344e0f3948`.
 
-Resume at stage 2: gateway lifecycle, slash /help and /contact, latest gateway activity, website message composer. Complete modmail in stage 3 before claiming DM contact is operational. Leveling questionnaire still required later. Final installation PDF not yet started, intentionally.
+Stage 2 implementation checkpoint: Guilds-only bot lifecycle, permission-aware /help, /dashboard and /ping (ephemeral, removed after 120 seconds), safe channel message sending, review-first website composer, per-server delivery tracking, restart recovery for uncertain sends, and server removal cleanup. All 94 tests pass; frontend/server typechecks and production build pass. Live Discord remains untested without credentials. Stage 2 browser QA remains pending; do not mark stage 2 fully complete until it passes.
+
+NEXT RESUME: rebuild/start the normal app; run an isolated fake-Discord UI harness to check sign-in walkthrough skip/reset, select server, Messages channel selection, Review -> Send, delivery result/status, keyboard flow and mobile layout. The previous harness used port 3001, in-memory data, and a fake Discord adapter; it is temporary and not shipped. Then finish stage 2 docs/checkpoint and begin stage 3 staff DM inbox with explicit per-server routing, followed by opt-in message audit, 90-day purge/export. /contact is intentionally deferred until modmail works. Leveling questionnaire remains required before leveling; final PDF remains deferred until completed deployment.
+
+Stage 2 data migration is schema version 2. Delivery records retain hashes/metadata, not plaintext message bodies. Never automatically replay an uncertain send. Production still has no login bypass. Repository is public; keep real configuration and runtime data out. GitHub CLI auth is invalid, so use the connector Git Data create_tree/create_commit/update_ref flow (non-force) to save snapshots. Keep local original commits on foundation-local-checkpoints backup branch if aligning local history to connector commits.
 
 Usage hit 100% in the original allowance window. User said resume; next check showed a reset to 2% used. Continue checking between stages. No reset credit was redeemed by the agent.
 
 ## Architecture
 
 Node.js 24 LTS + TypeScript, Fastify serving a prebuilt React/Vite frontend, discord.js gateway in the same service, SQLite on local disk. One small process instead of a server fleet for Pi 3 B+. Opaque server-side sessions, encrypted sensitive fields, prepared SQL, bounded reads, no login bypass or demo backend. Production binds loopback behind a secure access path. All bot tokens stay server-side. No paid AI services required.
+
+
+Latest usage checkpoint: 94% of five-hour allowance used (6% remaining), 47% weekly used. Finish saving this checkpoint and pause under the user's 5% rule. Do not redeem a reset.
