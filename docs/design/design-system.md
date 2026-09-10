@@ -37,3 +37,7 @@ The composer uses the same white/cool-gray/navy/indigo palette, sidebar/header p
 ### Stage 3a extension verification
 
 The staff inbox extends the established palette, typography, sidebar/header, outlined controls and footer. The conversation list and message detail use two columns on desktop and one column on a phone. Local Chromium tested simulated sign-in, disabled/enabled intake, read/review/send, escaped content, one reply, close/filter/history and footer navigation. The 390px viewport had no horizontal overflow or browser errors. Desktop and mobile renders were inspected with view_image; all content is simulated. No real Discord message was sent. Native focus and labeled controls are retained; full assistive-technology validation remains in the release stage.
+
+### Stage 4a events verification
+
+Events extend the same established shell, palette, type and controls. Browser plugin absent: regular Playwright/Chromium against an isolated fake Discord preview at 127.0.0.1:3001. Desktop1505x1045 and mobile390x844, external and voice creation, graphic/alt preview, timezone review, failed-announcement recovery and read-only status checked. Initial signed-out /api/me 401 is expected; no other app console or runtime errors allowed. Screenshots inspected with view_image; no material layout defect or mobile overflow. Screenshot input graphic is itself a simulated dashboard screenshot, used solely to verify file selection and preview. No live Discord messages or events created.

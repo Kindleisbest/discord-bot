@@ -31,3 +31,13 @@ DM text and attachment metadata are encrypted in the local database and expire a
 If sign-in fails, check matching callback URLs, all four non-placeholder configuration values, bot installation, and your current permissions. Errors intentionally do not echo credentials. Do not solve access errors by making the site public or disabling its checks.
 
 For the Pi 3 B+, use 64-bit Raspberry Pi OS Lite, a reliable power supply and adequate storage. Plan to build the frontend on the development computer, then run compiled files on the Pi. The exact install, service, update, backup, restore, firewall and Cloudflare steps are **not yet finalized or verified on the Pi**.
+
+## Testing website events
+
+1. Give the appropriate administrator website roles both **Manage events** and **Send channel messages**, or sign in as the server owner.
+2. Give the bot **Create Events**. For voice events it also needs **View Channel** and **Connect** in that voice channel. Stage events additionally need **Manage Channels**, **Mute Members**, and **Move Members** in the Stage channel. Do not grant Administrator merely to solve a missing permission.
+3. In the announcement text channel, grant **View Channel**, **Send Messages**, and **Embed Links**.
+4. Open **Events**, choose the location and channel, then enter a future start/end time. The form and review show your browser's time zone.
+5. Optionally choose a PNG/JPEG graphic up to 1 MiB and enter its accessible description. It becomes the event cover and is included in the announcement. Upload bytes are not archived locally.
+6. Review, then choose **Create event & announce**. Check the separate event and announcement results. If the event exists but its announcement definitely failed, fix the permission and use **Send missing announcement**. If delivery is unconfirmed, check Discord; do not recreate the event to resolve an uncertain response.
+7. This stage creates individual events. Edit/cancel existing events in Discord. Live event/graphic delivery has not yet been verified with real credentials.

@@ -27,7 +27,7 @@ Requested by Andrew, 2026-09-08. Work through the stages in order, save complete
 1. [x] Secure foundation: configuration, persistent database, Discord OAuth sessions, live role checks, server isolation, owner override, permission editor, accessible dashboard shell, health checks, security tests.
 2. [x] Bot gateway, slash /help, /dashboard and /ping, latest activity, reviewed website composer. /contact belongs to the staff inbox stage.
 3. [ ] Staff inbox and message audit. Staff DM inbox/replies/routing/90-day purge are complete; server-channel audit and exports remain.
-4. [ ] Events with graphics and announcements; configurable member tutorials and admin onboarding.
+4. [ ] Events with graphics and announcements are implemented and locally tested. Configurable member tutorials remain; admin onboarding is already implemented.
 5. [ ] Instagram links shared in Discord: configurable destination and custom embed.
 6. [ ] Ask detailed leveling questions; implement only after answers.
 7. [ ] Pi deployment hardening, free-address decision, backup/restore, end-to-end and accessibility validation.
@@ -41,7 +41,7 @@ Stage 3a complete: opt-in per-server staff DM inbox, `/contact` and private Help
 
 Validation: all **140** automated tests pass; frontend/server typechecks and production build pass. Isolated browser QA with fake Discord responses passes simulated OAuth, disabled replies, enable intake, reading/reviewing/sending exactly one reply, escaped content, close/filter/read-only history and privacy footer navigation. Mobile width 390px has no horizontal overflow and no browser errors occurred. Saved desktop screenshot: `docs/design/inbox-verified.png`. Live Discord and real Pi testing remain outstanding; no credentials or real member messages were used.
 
-BRANCH PLAN: `main` continues with the remaining core bot features, starting with events/tutorials. Stage 3b server-channel message audit is isolated on `feature/message-audit` for development and review before Andrew approves release. No server-channel collection or audit export implementation exists yet, so no active collector needs removing from `main`. The existing staff DM inbox and administration activity stay on `main`.
+BRANCH PLAN: `main` continues with the remaining core bot features, starting with configurable member tutorials. Stage 3b server-channel message audit is isolated on `feature/message-audit` for development and review before Andrew approves release. No server-channel collection or audit export implementation exists yet, so no active collector needs removing from `main`. The existing staff DM inbox and administration activity stay on `main`.
 
 WHEN WORKING ON `feature/message-audit`: confirm Message Content intent setup, collect only configured channels, retain original/edited/deleted content no longer than 90 days, encrypt bodies, bound resource use for Pi 3 B+, and enforce live role/guild checks on every read and export. Commit audit changes only to that branch. Do not merge it into `main` or include it in a main release without Andrew's explicit release instruction. Leveling questionnaire remains mandatory before building leveling. The final PDF must describe the features actually included in the chosen release.
 
@@ -50,6 +50,16 @@ GitHub repository is public: https://github.com/Kindleisbest/discord-bot. Publis
 Stage 3a is saved and verified on GitHub at `cfb0972de1a4229af91068196ea2613d50a2edaf`; its tree exactly matches the local checkpoint. The isolated fake Discord preview has been stopped.
 
 Usage on resume: 4% five-hour used, 65% weekly used. Final check: 75% five-hour used (25% remaining), 76% weekly used (24% remaining). Pause at this tested milestone because the next substantial audit/export implementation risks exhausting the user's 5% buffer. User should say `resume`; recheck allowance first. No reset credit was redeemed.
+
+## Event milestone — 2026-09-10
+
+Stage 4a implemented on main: external/voice/Stage event creation, optional PNG/JPEG cover graphic with accessible description, reviewed announcement, separately persisted event/announcement results, and explicit recovery of a definitely failed announcement. No automatic replay after uncertain creation/delivery. Graphic upload bytes are not stored; announcement graphics come from the Discord event cover. Event request details are encrypted and expire locally after 90 days; Discord events are not automatically deleted. Latest 100 requests shown.
+
+All 165 automated tests, frontend/server typechecks, and production build pass. Browser plugin absent, so regular Playwright/Chromium used with isolated simulated Discord at 127.0.0.1:3001, desktop 1505x1045/mobile 390x844. Tested external/voice form, optional description, graphic and alt preview, time-zone review, escaped text, failed-announcement recovery without duplicate event, read-only status checks, and no horizontal overflow. Expected initial /api/me 401 before login is accounted for. Screenshots: docs/design/events-review-verified.png and events-result-verified.png. No live Discord actions or Pi tests.
+
+NEXT on main: channel-by-channel member tutorials and /tutorial. Audit stays on feature/message-audit, unimplemented, until separately developed and approved for release. Event editing/cancellation is currently done in Discord. Final installation PDF remains deferred. Progress report: docs/PROGRESS_REPORT_2026-09-10.md updated for events.
+
+Latest usage before saving: 81% five-hour used, 93% weekly used (7% weekly remaining). Finish this checkpoint and pause to protect the user's 5% buffer; do not start tutorials until allowance is checked after resume. Do not redeem resets. GitHub previous main: 5ba4c3023bc02592f7540a13d3bd3cb409c618d3, tree 31d409f0076523414420c3289e457026e6bc9448. Use connector non-force writes; keep audit branch unchanged.
 
 ## Architecture
 

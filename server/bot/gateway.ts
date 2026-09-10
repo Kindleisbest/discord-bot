@@ -59,7 +59,7 @@ export function createBot(config: Config, hooks: Hooks): BotService & { client: 
       ReactionManager: 0, ReactionUserManager: 0, GuildScheduledEventManager: 0,
     }),
     // Never automatically replay a message POST after an uncertain network error.
-    rest: { retries: 0, timeout: 15_000, rejectOnRateLimit: ['/channels'] },
+    rest: { retries: 0, timeout: 15_000, rejectOnRateLimit: ['/channels', '/guilds'] },
   });
   let current: BotStatus = { state: config.configured ? 'disconnected' : 'not_configured', lastReadyAt: null };
   let starting: Promise<void> | null = null;

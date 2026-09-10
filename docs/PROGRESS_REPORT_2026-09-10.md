@@ -1,7 +1,7 @@
 # Discord Bot — Progress Report
 **10 September 2026**
 
-The secure website foundation, channel messaging, and private staff inbox are implemented. The project is still in development and has not been validated with a live Discord server or on the Raspberry Pi.
+The secure website foundation, channel messaging, and private staff inbox, and event creation are implemented. The project is still in development and has not been validated with a live Discord server or on the Raspberry Pi.
 
 ## Feature status
 
@@ -16,7 +16,7 @@ The secure website foundation, channel messaging, and private staff inbox are im
 | Administrator walkthrough | Implemented | First-login tutorial with skip and reset. |
 | Accessibility | Foundation implemented | Keyboard/focus support, labeled controls, mobile layout, reduced-motion support, and footer accessibility statement. Full accessibility validation remains. |
 | Server chat audit and audit exports | Separate development branch | feature/message-audit exists locally and on GitHub. Collection, audit views/storage, and exports have not been implemented. |
-| Events and graphics | Planned | Website event creation, matching Discord event, announcement, and optional graphic. |
+| Events and graphics | Implemented; local tests pass | External, voice, and Stage event creation with announcement, optional graphic, separate results, and failed-announcement recovery. Live Discord verification remains. |
 | Member /tutorial | Planned | Administrator-authored, channel-by-channel instructions with channel visibility checks. |
 | Instagram announcements | Planned | Detect an Instagram link shared in Discord and post the configured custom embed. |
 | Leveling system | Awaiting requirements | Detailed questions will be asked before implementation. |
@@ -26,7 +26,7 @@ The secure website foundation, channel messaging, and private staff inbox are im
 
 ## Validation completed
 
-- The latest implementation passed **140 automated security and behavior tests**, both application type checks, and the production build.
+- The latest implementation passed **165 automated security and behavior tests**, both application type checks, and the production build.
 - Local browser checks passed simulated sign-in, staff inbox enablement, reading, reviewing and sending a reply, closing a conversation, retained history, and footer navigation.
 - Mobile testing at 390px width found no horizontal overflow; the tested inbox flow produced no browser errors.
 - Tests used simulated Discord responses. No real credentials or member messages were used, and no live Discord messages were sent.
@@ -43,7 +43,7 @@ Only credential placeholders are supplied. The GitHub repository is public; real
 
 ## Next work
 
-Continue the core bot on main with events and configurable member tutorials. Develop the server chat audit separately when requested. Ask the leveling questionnaire before that feature, then complete deployment and release validation before writing the final installation PDF.
+Continue the core bot on main with configurable member tutorials. Develop the server chat audit separately when requested. Ask the leveling questionnaire before that feature, then complete deployment and release validation before writing the final installation PDF.
 
 ## Project records
 
@@ -52,4 +52,4 @@ Continue the core bot on main with events and configurable member tutorials. Dev
 - [Detailed checkpoint](../PROJECT_PLAN.md)
 - [Staff inbox screenshot — simulated data](design/inbox-verified.png)
 
-This report summarizes the existing verified checkpoint; the automated test suite was not rerun solely to write this report.
+Updated after the event milestone: the full 165-test suite, typechecks, and build passed during event development. Browser checks use simulated Discord, including failed-announcement recovery.

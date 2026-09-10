@@ -3,7 +3,7 @@ import { Activity as ActivityIcon, RefreshCw, ShieldCheck } from 'lucide-react';
 import { api, ApiError, errorMessage, isAborted, type Activity, type GuildDetail } from '../api';
 import { ErrorNotice, Loading } from '../components/Status';
 
-const ACTION_LABELS: Record<string, string> = { 'permissions.updated': 'Website permissions updated', 'permissions.update': 'Website permissions updated', 'auth.login': 'Administrator signed in', 'onboarding.completed': 'Administrator tutorial completed', 'gateway.connected': 'Bot connected to Discord', 'commands.ready': 'Slash commands are ready', 'message.sent': 'Bot message sent', 'inbox.enabled': 'Staff inbox enabled', 'inbox.disabled': 'Staff inbox disabled', 'inbox.received': 'Member message received', 'inbox.replied': 'Staff reply sent', 'inbox.closed': 'Staff conversation closed' };
+const ACTION_LABELS: Record<string, string> = { 'permissions.updated': 'Website permissions updated', 'permissions.update': 'Website permissions updated', 'auth.login': 'Administrator signed in', 'onboarding.completed': 'Administrator tutorial completed', 'gateway.connected': 'Bot connected to Discord', 'commands.ready': 'Slash commands are ready', 'message.sent': 'Bot message sent', 'inbox.enabled': 'Staff inbox enabled', 'inbox.disabled': 'Staff inbox disabled', 'inbox.received': 'Member message received', 'inbox.replied': 'Staff reply sent', 'inbox.closed': 'Staff conversation closed', 'event.created': 'Discord event created', 'event.announced': 'Event announcement sent' };
 
 export function Overview({ detail, onAccessError }: { detail: GuildDetail; onAccessError: (error: ApiError) => void }) {
   const [activity, setActivity] = useState<Activity[] | null>(null);

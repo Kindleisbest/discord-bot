@@ -1,6 +1,6 @@
 # Discord Bot
 
-A Raspberry Pi-friendly Discord management bot and accessible administration website. **In development: login, permissions, channel messaging, and the staff DM inbox are implemented; live Discord setup still pending. This is not yet the complete management bot.**
+A Raspberry Pi-friendly Discord management bot and accessible administration website. **In development: login, permissions, channel messaging, the staff DM inbox, and event creation are implemented; live Discord setup still pending. This is not yet the complete management bot.**
 
 ## Implemented
 
@@ -13,6 +13,7 @@ A Raspberry Pi-friendly Discord management bot and accessible administration web
 - Website channel composer with draft review, disabled mention pings, durable duplicate-send protection, delivery status checks, and uncertain-send recovery.
 - Opt-in staff inbox for each server. Members explicitly choose their server through `/contact` or a DM server picker; current membership is verified before accepting messages or sending staff replies.
 - Encrypted DM text and attachment metadata, retained for 90 days. Authorized administrators can read conversations, review and send replies, check delivery status, and close conversations. Attachment files are not downloaded or archived; Discord links can expire.
+- Website-created external, voice, and Stage events with a reviewed announcement, optional PNG/JPEG graphic and accessible description, separate delivery statuses, and safe recovery of a failed announcement.
 - SQLite activity retention and automated security/behavior checks. Server-channel message audit and exports remain a later stage.
 
 ## Local development
@@ -35,7 +36,7 @@ The optional frontend development server is `npm run dev:web`; the backend is `n
 
 Server-channel chat auditing is developed separately on [`feature/message-audit`](https://github.com/Kindleisbest/discord-bot/tree/feature/message-audit). Keep its message collection, audit storage/views, and audit exports off `main` until Andrew explicitly approves merging it for release. The existing private staff DM inbox and administration activity remain on `main`. The audit implementation has not started yet.
 
-See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete request and current resume point. Remaining work includes the 90-day server-channel message audit and exports, events, member tutorials, Instagram-link embeds, leveling after the questionnaire, deployment hardening, and the final illustrated Raspberry Pi installation PDF.
+See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete request and current resume point. Remaining work includes the 90-day server-channel message audit and exports, member tutorials, Instagram-link embeds, leveling after the questionnaire, deployment hardening, and the final illustrated Raspberry Pi installation PDF.
 
 Tests use a fake Discord adapter to exercise security decisions without credentials. Live OAuth, a Discord test server, Raspberry Pi load, and public deployment still require validation. No claim of complete security or accessibility certification is made.
 

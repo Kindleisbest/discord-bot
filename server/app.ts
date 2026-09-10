@@ -12,14 +12,18 @@ import { DiscordError, type DiscordApi } from './discord.js';
 import { Store, type SessionData } from './store.js';
 import { assertGrantChange, resolveAccess } from './permissions.js';
 import { PERMISSIONS, type Permission } from '../shared/permissions.js';
-import { BotUnavailableError, type BotService } from './bot/types.js';
+import { BotSendError, BotUnavailableError, type BotService } from './bot/types.js';
 import { deliverMessage, DeliveryConflictError, publicDelivery } from './messages.js';
 import { InboxError } from '../shared/inbox.js';
 import type { InboxService } from './inbox/service.js';
+import { EventError } from '../shared/events.js';
+import type { EventService } from './events/service.js';
+import { publicEvent } from './events/store.js';
+import { eventDraftSchema } from './events/validation.js';
 
 class HttpError extends Error { constructor(readonly statusCode:number,message:string) { super(message); } }
 const snowflake = z.string().regex(/^\d{17,20}$/);
-export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?:BotService,inbox?:InboxService) {
+export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?:BotService,inbox?:InboxService,events?:EventService) {
   const app = Fastify({logger:false,trustProxy:false,bodyLimit:16_384,requestTimeout:30_000});
   const sessionCookie = config.production ? '__Host-dm_session' : 'dm_session';
   const stateCookie = config.production ? '__Host-dm_oauth' : 'dm_oauth';
@@ -57,6 +61,8 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?
     }
   });
   app.setErrorHandler((error,request,reply)=>{
+    if(error instanceof BotSendError && !error.uncertain)return reply.code(409).send({error:error.message});
+    if(error instanceof EventError)return reply.code(error.statusCode).send({error:error.message});
     if(error instanceof InboxError)return reply.code(error.statusCode).send({error:error.message});
     if(error instanceof BotUnavailableError)return reply.code(503).send({error:'The bot is offline. Wait for it to reconnect before sending.'});
     if(error instanceof DeliveryConflictError)return reply.code(409).send({error:error.message});
@@ -74,7 +80,7 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?
     return reply.code(status >= 400 && status < 600 ? status : 500).send({error:error instanceof HttpError ? error.message : status === 429 ? 'Too many requests. Please wait a minute.' : status === 413 ? 'This request is too large.' : 'The request could not be completed.'});
   });
   app.get('/healthz',async()=>({ok:true}));
-  app.get('/api/status',async()=>({configured:config.configured,service:'discord-bot',stage:3}));
+  app.get('/api/status',async()=>({configured:config.configured,service:'discord-bot',stage:4}));
   app.get('/auth/login',{config:{rateLimit:{max:5,timeWindow:'1 minute'}}},async(request,reply)=>{
     if (!config.configured) throw new HttpError(503,'Discord sign-in has not been configured yet.');
     const state=randomToken(), binding=randomToken();
@@ -216,6 +222,31 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?
     const {ticketId}=z.object({ticketId:z.string().uuid()}).parse(request.params);
     z.object({}).strict().parse(request.body);
     staffInbox().close(c.guild.id,ticketId,c.data.user.id);return {ok:true};
+  });
+  function eventService() {if(!events)throw new HttpError(503,'Events are not available.');return events;}
+  app.get('/api/guilds/:guildId/events',async request=>{
+    const c=await context(request,'events.manage');return {records:eventService().store.list(c.guild.id)};
+  });
+  app.get('/api/guilds/:guildId/events/options',async request=>{
+    const c=await context(request,'events.manage');return {options:await eventService().transport.options(c.guild.id)};
+  });
+  app.get('/api/guilds/:guildId/events/:requestId',async request=>{
+    const c=await context(request,'events.manage');
+    const {requestId}=z.object({requestId:z.string().uuid()}).parse(request.params);
+    return {record:publicEvent(eventService().store.require(c.guild.id,requestId))};
+  });
+  app.post('/api/guilds/:guildId/events',{bodyLimit:1_450_000,config:{rateLimit:{max:3,timeWindow:'1 minute'}}},async request=>{
+    const c=await context(request,'events.manage');
+    if(!c.access.permissions.includes('messages.send'))throw new HttpError(403,'Send channel messages permission is also required for the announcement.');
+    const body=z.object({requestId:z.string().uuid(),draft:eventDraftSchema}).strict().parse(request.body);
+    return {record:await eventService().create(c.guild.id,c.data.user.id,body.requestId,body.draft)};
+  });
+  app.post('/api/guilds/:guildId/events/:requestId/announce',{config:{rateLimit:{max:3,timeWindow:'1 minute'}}},async request=>{
+    const c=await context(request,'events.manage');
+    if(!c.access.permissions.includes('messages.send'))throw new HttpError(403,'Send channel messages permission is also required for the announcement.');
+    const {requestId}=z.object({requestId:z.string().uuid()}).parse(request.params);
+    z.object({}).strict().parse(request.body);
+    return {record:await eventService().announce(c.guild.id,c.data.user.id,requestId)};
   });
   const webRoot=resolve('dist/web');
   if (existsSync(resolve(webRoot,'index.html'))) {

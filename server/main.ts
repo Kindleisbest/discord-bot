@@ -11,6 +11,9 @@ import { createBot } from './bot/gateway.js';
 import { InboxStore } from './inbox/store.js';
 import { InboxService } from './inbox/service.js';
 import { createInboxTransport,attachInboxGateway } from './inbox/gateway.js';
+import { EventStore } from './events/store.js';
+import { EventService } from './events/service.js';
+import { createEventTransport } from './events/discord.js';
 
 process.umask(0o077);
 if (existsSync('.env')) loadEnvFile('.env');
@@ -20,14 +23,17 @@ const key=config.configured ? config.DATA_ENCRYPTION_KEY : randomBytes(32).toStr
 const vault=new Vault(key);
 const store=new Store(config.configured ? resolve(config.DATA_DIR,'discord-bot.sqlite') : ':memory:',vault);
 const inboxStore=new InboxStore(store.db,vault);
+const eventStore=new EventStore(store.db,vault);
+eventStore.prune();eventStore.recover();
 store.prune();
 store.recoverPendingDeliveries();
 inboxStore.prune();inboxStore.recoverPendingReplies();
-const bot=createBot(config,{addActivity:(...args)=>store.addActivity(...args),removeGuild:id=>{inboxStore.removeGuild(id);store.removeGuild(id);}});
+const bot=createBot(config,{addActivity:(...args)=>store.addActivity(...args),removeGuild:id=>{eventStore.removeGuild(id);inboxStore.removeGuild(id);store.removeGuild(id);}});
 const inbox=new InboxService(inboxStore,createInboxTransport(bot.client),(...args)=>store.addActivity(...args));
 const inboxGateway=attachInboxGateway(bot.client,inbox);
-const app=await buildApp(config,store,new DiscordHttpApi(config),bot,inbox);
-const cleanup=setInterval(()=>{try {inboxStore.prune();store.prune();} catch {console.error('Scheduled data cleanup failed. Check storage and disk space.');}},60*60_000);
+const events=new EventService(eventStore,createEventTransport(bot.client),(...args)=>store.addActivity(...args));
+const app=await buildApp(config,store,new DiscordHttpApi(config),bot,inbox,events);
+const cleanup=setInterval(()=>{try {eventStore.prune();inboxStore.prune();store.prune();} catch {console.error('Scheduled data cleanup failed. Check storage and disk space.');}},60*60_000);
 cleanup.unref();
 let stopping=false;
 async function shutdown() {
