@@ -4,11 +4,11 @@ import { api, ApiError, errorMessage, type Session } from '../api';
 import { ErrorNotice } from './Status';
 
 const STEPS = [
-  { title: 'Welcome to your workspace', text: 'This short walkthrough introduces the website foundation. Your progress is saved, and you can skip or reset this tutorial whenever you need.' },
+  { title: 'Welcome to your workspace', text: 'This short walkthrough introduces your management website. Your progress is saved, and you can skip or reset this tutorial whenever you need.' },
   { title: 'Choose a server', text: 'Use the Server menu at the top of the page. Only servers where you are the owner or have Discord Administrator permission, and where the bot can verify access, are available. Each server has its own workspace.' },
   { title: 'Understand your access', text: 'Signing in verifies your Discord account. The service also checks your current membership and Administrator permission. Owners always retain full website access, even without a role.' },
   { title: 'Set up role permissions', text: 'Open Permissions to configure website access. Owners can manage every role. Delegated administrators can manage eligible lower roles, using only permissions they already have. Website grants never change Discord roles.' },
-  { title: 'Review administration activity', text: 'Overview shows the selected server’s latest recorded website activity. Activity records bot connections, command setup, channel message deliveries, and permission changes. Authorized administrators can use Messages to review and send through the bot. The staff inbox, message audit, and events will be added in later stages.' },
+  { title: 'Messages and staff contact', text: 'Overview records activity without message text. Use Messages to review and send channel messages. Enable Staff inbox for a server when your team is ready to receive member DMs, then give staff read and reply access. Members choose their server through /contact or the bot’s DM picker. Inbox messages are retained for 90 days; attachment links may expire sooner.' },
   { title: 'You are ready to begin', text: 'Choose your server and review Permissions. Setup guide is always available at the top of the page. Accessibility and privacy information are linked in the footer. Use Reset tutorial to take this walkthrough again.' },
 ];
 

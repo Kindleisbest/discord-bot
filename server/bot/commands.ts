@@ -12,6 +12,7 @@ export const COMMANDS = [
   { name: 'help', description: 'Show the commands you can use.', administrator: false },
   { name: 'dashboard', description: 'Open this server’s administration website.', administrator: true },
   { name: 'ping', description: 'Check whether the bot is responding.', administrator: false },
+  { name: 'contact', description: 'Choose this server’s staff inbox, then message the bot privately.', administrator: false },
 ] as const;
 export type CommandName = typeof COMMANDS[number]['name'];
 
@@ -88,7 +89,7 @@ export function createCommandHandler(client: Client, config: Config, addActivity
   }
 
   async function handle(interaction: ChatInputCommandInteraction): Promise<void> {
-    if (stopped || !COMMANDS.some(command => command.name === interaction.commandName)) return;
+    if (stopped || interaction.commandName === 'contact' || !COMMANDS.some(command => command.name === interaction.commandName)) return;
     try {
       // The acknowledgement is the first network request, before any role fetch.
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -125,6 +126,11 @@ export function createCommandHandler(client: Client, config: Config, addActivity
       } else {
         await interaction.editReply({
           content: interaction.commandName === 'help' ? helpText(access) : 'Pong! The bot is responding.',
+          ...(interaction.commandName === 'help' ? {
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
+              new ButtonBuilder().setCustomId('inbox:contact').setLabel('Contact staff').setStyle(ButtonStyle.Secondary),
+            )],
+          } : {}),
           allowedMentions: { parse: [] },
         });
       }

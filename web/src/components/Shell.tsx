@@ -1,8 +1,8 @@
-import { BookOpen, Home, LogOut, MessageSquare, Users } from 'lucide-react';
+import { BookOpen, Home, LogOut, MessageSquare, Inbox, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { GuildSummary, Session } from '../api';
 
-export type Page = 'overview' | 'messages' | 'permissions' | 'setup' | 'accessibility' | 'privacy';
+export type Page = 'overview' | 'messages' | 'inbox' | 'permissions' | 'setup' | 'accessibility' | 'privacy';
 
 export function Shell({ children, page, session, guilds, selectedGuild, onGuildChange, onLogout, onResetTutorial, loggingOut }: {
   children: ReactNode; page: Page; session: Session | null; guilds: GuildSummary[]; selectedGuild: string;
@@ -15,6 +15,7 @@ export function Shell({ children, page, session, guilds, selectedGuild, onGuildC
       <nav aria-label="Main navigation"><p className="nav-label">Workspace</p>
         <a className={`nav-link ${page === 'overview' ? 'selected' : ''}`} href="#overview" aria-current={page === 'overview' ? 'page' : undefined}><Home aria-hidden="true" />Overview</a>
         <a className={`nav-link ${page === 'messages' ? 'selected' : ''}`} href="#messages" aria-current={page === 'messages' ? 'page' : undefined}><MessageSquare aria-hidden="true" />Messages</a>
+        <a className={`nav-link ${page === 'inbox' ? 'selected' : ''}`} href="#inbox" aria-current={page === 'inbox' ? 'page' : undefined}><Inbox aria-hidden="true" />Staff inbox</a>
         <a className={`nav-link ${page === 'permissions' ? 'selected' : ''}`} href="#permissions" aria-current={page === 'permissions' ? 'page' : undefined}><Users aria-hidden="true" />Permissions</a>
       </nav>
       <p className="sidebar-note">Your servers, clearly separated.</p>

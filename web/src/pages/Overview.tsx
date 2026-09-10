@@ -3,7 +3,7 @@ import { Activity as ActivityIcon, RefreshCw, ShieldCheck } from 'lucide-react';
 import { api, ApiError, errorMessage, isAborted, type Activity, type GuildDetail } from '../api';
 import { ErrorNotice, Loading } from '../components/Status';
 
-const ACTION_LABELS: Record<string, string> = { 'permissions.updated': 'Website permissions updated', 'permissions.update': 'Website permissions updated', 'auth.login': 'Administrator signed in', 'onboarding.completed': 'Administrator tutorial completed', 'gateway.connected': 'Bot connected to Discord', 'commands.ready': 'Slash commands are ready', 'message.sent': 'Bot message sent' };
+const ACTION_LABELS: Record<string, string> = { 'permissions.updated': 'Website permissions updated', 'permissions.update': 'Website permissions updated', 'auth.login': 'Administrator signed in', 'onboarding.completed': 'Administrator tutorial completed', 'gateway.connected': 'Bot connected to Discord', 'commands.ready': 'Slash commands are ready', 'message.sent': 'Bot message sent', 'inbox.enabled': 'Staff inbox enabled', 'inbox.disabled': 'Staff inbox disabled', 'inbox.received': 'Member message received', 'inbox.replied': 'Staff reply sent', 'inbox.closed': 'Staff conversation closed' };
 
 export function Overview({ detail, onAccessError }: { detail: GuildDetail; onAccessError: (error: ApiError) => void }) {
   const [activity, setActivity] = useState<Activity[] | null>(null);
@@ -30,6 +30,6 @@ export function Overview({ detail, onAccessError }: { detail: GuildDetail; onAcc
     <section className="activity-section" aria-labelledby="activity-title"><div className="section-heading"><h2 id="activity-title">Latest activity</h2>{allowed ? <button className="button button-outline button-small" onClick={() => setRevision(value => value + 1)} disabled={activity === null && !error}><RefreshCw size={17} aria-hidden="true" />Refresh</button> : null}</div>
       {!allowed ? <p>You do not have access to view activity. Contact your server owner.</p> : error ? <ErrorNotice message={error} retry={() => setRevision(value => value + 1)} /> : activity === null ? <Loading>Loading server activity…</Loading> : activity.length === 0 ? <div className="empty-state"><ActivityIcon size={34} aria-hidden="true" /><h3>No activity yet</h3><p>Bot connections, command setup, message deliveries, and permission changes will appear here.</p></div> : <ol className="activity-list">{activity.map(item => <li key={item.id}><div><h3>{ACTION_LABELS[item.action] ?? item.action.replace(/[._]/g, ' ')}</h3><p>Discord user <code>{item.actorId}</code>{item.targetId ? <> · Target <code>{item.targetId}</code></> : null}</p></div><time dateTime={new Date(item.createdAt).toISOString()}>{new Date(item.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</time></li>)}</ol>}
     </section>
-    <p className="supporting-note">Activity records actions without storing message text. The private staff inbox and message audit will arrive in later stages.</p>
+    <p className="supporting-note">Activity records actions without message text. Authorized administrators can read retained private conversations in Staff inbox. Server-channel message audit and exports are planned for a later stage.</p>
   </>;
 }

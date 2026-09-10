@@ -8,24 +8,32 @@ import { Store } from './store.js';
 import { DiscordHttpApi } from './discord.js';
 import { buildApp } from './app.js';
 import { createBot } from './bot/gateway.js';
+import { InboxStore } from './inbox/store.js';
+import { InboxService } from './inbox/service.js';
+import { createInboxTransport,attachInboxGateway } from './inbox/gateway.js';
 
 process.umask(0o077);
 if (existsSync('.env')) loadEnvFile('.env');
 const config=readConfig();
 // With no credentials the public setup page is available, but no login/session can be created.
 const key=config.configured ? config.DATA_ENCRYPTION_KEY : randomBytes(32).toString('base64');
-const store=new Store(config.configured ? resolve(config.DATA_DIR,'discord-bot.sqlite') : ':memory:',new Vault(key));
+const vault=new Vault(key);
+const store=new Store(config.configured ? resolve(config.DATA_DIR,'discord-bot.sqlite') : ':memory:',vault);
+const inboxStore=new InboxStore(store.db,vault);
 store.prune();
 store.recoverPendingDeliveries();
-const bot=createBot(config,{addActivity:(...args)=>store.addActivity(...args),removeGuild:id=>store.removeGuild(id)});
-const app=await buildApp(config,store,new DiscordHttpApi(config),bot);
-const cleanup=setInterval(()=>{try {store.prune();} catch {console.error('Scheduled data cleanup failed. Check storage and disk space.');}},60*60_000);
+inboxStore.prune();inboxStore.recoverPendingReplies();
+const bot=createBot(config,{addActivity:(...args)=>store.addActivity(...args),removeGuild:id=>{inboxStore.removeGuild(id);store.removeGuild(id);}});
+const inbox=new InboxService(inboxStore,createInboxTransport(bot.client),(...args)=>store.addActivity(...args));
+const inboxGateway=attachInboxGateway(bot.client,inbox);
+const app=await buildApp(config,store,new DiscordHttpApi(config),bot,inbox);
+const cleanup=setInterval(()=>{try {inboxStore.prune();store.prune();} catch {console.error('Scheduled data cleanup failed. Check storage and disk space.');}},60*60_000);
 cleanup.unref();
 let stopping=false;
 async function shutdown() {
   if (stopping) return; stopping=true;
   clearInterval(cleanup);
-  await app.close(); await bot.stop(); store.close();
+  await app.close(); inboxGateway.stop(); await bot.stop(); store.close();
 }
 process.once('SIGINT',()=>void shutdown()); process.once('SIGTERM',()=>void shutdown());
 await app.listen({host:config.HOST,port:config.PORT});

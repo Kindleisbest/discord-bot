@@ -33,3 +33,7 @@ Compared the saved concept and browser screenshot with `view_image`. In-app brow
 ### Stage 2 extension verification
 
 The composer uses the same white/cool-gray/navy/indigo palette, sidebar/header proportions, typography, outlined controls, accessible focus and footer as the foundation reference. Its review and delivery panels are functional extensions required by the user. In-app browser verified simulated sign-in, tutorial skip/reset, selection, draft review and successful simulated delivery. Phone width390px had no overflow. The saved composer screenshot was inspected with view_image; no material layout defect was identified. No real external message was sent.
+
+### Stage 3a extension verification
+
+The staff inbox extends the established palette, typography, sidebar/header, outlined controls and footer. The conversation list and message detail use two columns on desktop and one column on a phone. Local Chromium tested simulated sign-in, disabled/enabled intake, read/review/send, escaped content, one reply, close/filter/history and footer navigation. The 390px viewport had no horizontal overflow or browser errors. Desktop and mobile renders were inspected with view_image; all content is simulated. No real Discord message was sent. Native focus and labeled controls are retained; full assistive-technology validation remains in the release stage.

@@ -25,32 +25,27 @@ Requested by Andrew, 2026-09-08. Work through the stages in order, save complete
 
 1. [x] Secure foundation: configuration, persistent database, Discord OAuth sessions, live role checks, server isolation, owner override, permission editor, accessible dashboard shell, health checks, security tests.
 2. [x] Bot gateway, slash /help, /dashboard and /ping, latest activity, reviewed website composer. /contact belongs to the staff inbox stage.
-3. [ ] Staff DM inbox, replies, per-server routing, audit capture, 90-day purge, safe export.
+3. [ ] Staff inbox and message audit. Staff DM inbox/replies/routing/90-day purge are complete; server-channel audit and exports remain.
 4. [ ] Events with graphics and announcements; configurable member tutorials and admin onboarding.
-5. [ ] Instagram integration using supported account access and explicit setup.
+5. [ ] Instagram links shared in Discord: configurable destination and custom embed.
 6. [ ] Ask detailed leveling questions; implement only after answers.
 7. [ ] Pi deployment hardening, free-address decision, backup/restore, end-to-end and accessibility validation.
 8. [ ] Final detailed installation PDF with images and official video links, release checklist.
 
-## Current checkpoint
+## Current checkpoint — 2026-09-10
 
-Stage 1 implemented: 66 security tests pass, frontend/server typechecks pass, production asset build passes. Desktop (1505×1045) and mobile (390×844) browser checks pass for setup screen, locked permissions, footer link, and responsive overflow. No Discord credentials requested or used: live OAuth/server tests remain for installation. Admin first-login skip/reset walkthrough also implemented as part of the foundation.
+Stages 1–2 complete: secure OAuth/role-gated website, owner exception, per-server permissions, accessible dashboard, onboarding skip/reset, bot commands and reviewed channel composer. Previous GitHub checkpoint: `7f9dbab350df1887e1ea46df016c2d1d4828e8e5`.
 
-GitHub: user created https://github.com/Kindleisbest/discord-bot, public, initial README commit 7625abe87bc7e286a2431e69131a29503429bb14. CLI auth remains invalid; use authenticated GitHub connector for writes. Stage 1 saved and verified at commit `6f02ca16005a5f681d90ff33e8ea3b344e0f3948`.
+Stage 3a complete: opt-in per-server staff DM inbox, `/contact` and private Help contact button, explicit DM server picker, fresh membership checks, safe server switching, encrypted conversations, reviewed website replies, delivery checks, closing, pagination and exact 90-day expiry. Attachments retain Discord links/metadata only; files are not downloaded. Disabling blocks new intake and new replies while retained history remains available. Global source-message dedup prevents replay into a second server. Encryption authenticates content and immutable conversation/actor/routing/timestamp metadata. Pending replies become uncertain after restart and are never automatically replayed.
 
-Stage 2 implementation checkpoint: Guilds-only bot lifecycle, permission-aware /help, /dashboard and /ping (ephemeral, removed after 120 seconds), safe channel message sending, review-first website composer, per-server delivery tracking, restart recovery for uncertain sends, and server removal cleanup. All 94 tests pass; frontend/server typechecks and production build pass. Live Discord remains untested without credentials. Stage 2 browser QA passed on 2026-09-09 with an isolated fake Discord adapter: sign-in, skip/reset onboarding, server/channel selection, review, simulated send confirmation, and mobile width (390px, no horizontal overflow). No real Discord messages were sent. Screenshot: docs/design/composer-verified.png.
+Validation: all **140** automated tests pass; frontend/server typechecks and production build pass. Isolated browser QA with fake Discord responses passes simulated OAuth, disabled replies, enable intake, reading/reviewing/sending exactly one reply, escaped content, close/filter/read-only history and privacy footer navigation. Mobile width 390px has no horizontal overflow and no browser errors occurred. Saved desktop screenshot: `docs/design/inbox-verified.png`. Live Discord and real Pi testing remain outstanding; no credentials or real member messages were used.
 
-NEXT: begin stage 3 staff DM inbox with explicit per-server routing, followed by opt-in message audit, 90-day purge/export. /contact is intentionally deferred until modmail works. Leveling questionnaire remains required before leveling; final PDF remains deferred until completed deployment.
+NEXT: stage 3b opt-in server-channel message audit and safe exports (including retained staff conversations). Confirm Message Content intent setup, collect only configured channels, retain original/edited/deleted content no longer than 90 days, encrypt bodies, bound resource use for Pi 3 B+, and enforce live role/guild checks on every read and export. No channel collection or exports exist in stage 3a. Then proceed with events/tutorials and Instagram-link announcements. Leveling questionnaire is still mandatory before building leveling. The final PDF must wait for the completed deployment.
 
-Stage 2 data migration is schema version 2. Delivery records retain hashes/metadata, not plaintext message bodies. Never automatically replay an uncertain send. Production still has no login bypass. Repository is public; keep real configuration and runtime data out. GitHub CLI auth is invalid, so use the connector Git Data create_tree/create_commit/update_ref flow (non-force) to save snapshots. Keep local original commits on foundation-local-checkpoints backup branch if aligning local history to connector commits.
+GitHub repository is public: https://github.com/Kindleisbest/discord-bot. Publish source/docs only. CLI authentication is invalid; authenticated connector Git Data create_tree/create_commit/update_ref works. Use non-force writes with the verified current remote parent. Keep `.env`, runtime data, backups, exports, and temporary fake-auth UI harnesses ignored. The test harness is isolated on loopback and is not shipped with the application. Root database schema remains version 2; the inbox owns additional tables. No deployed inbox-data migration is needed yet because no real installation exists.
 
-Usage hit 100% in the original allowance window. User said resume; next check showed a reset to 2% used. Continue checking between stages. No reset credit was redeemed by the agent.
+Usage on resume: 4% five-hour used, 65% weekly used. Latest check: 63% five-hour used, 74% weekly used. Recheck before starting the next substantial stage and stop at a safe checkpoint under the user's 5% rule. No reset credit was redeemed.
 
 ## Architecture
 
 Node.js 24 LTS + TypeScript, Fastify serving a prebuilt React/Vite frontend, discord.js gateway in the same service, SQLite on local disk. One small process instead of a server fleet for Pi 3 B+. Opaque server-side sessions, encrypted sensitive fields, prepared SQL, bounded reads, no login bypass or demo backend. Production binds loopback behind a secure access path. All bot tokens stay server-side. No paid AI services required.
-
-
-Latest usage checkpoint: 94% of five-hour allowance used (6% remaining), 47% weekly used. Finish saving this checkpoint and pause under the user's 5% rule. Do not redeem a reset.
-
-Stage 2 code saved remotely as 2815a5307eb4391d8f82802e5fac64f61a0e45f5. User resumed again; allowance reset to 1% used. Continue stage 3 after saving the browser verification note.

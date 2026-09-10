@@ -1,6 +1,6 @@
 import {
   ChannelType, Client, DiscordAPIError, Events, GatewayIntentBits, HTTPError,
-  Options, PermissionFlagsBits, RateLimitError, type GuildMember,
+  Options, Partials, PermissionFlagsBits, RateLimitError, type GuildMember,
   type GuildBasedChannel, type NewsChannel, type TextChannel,
 } from 'discord.js';
 import type { Config } from '../config.js';
@@ -44,9 +44,10 @@ export function classifySendError(error: unknown): BotSendError {
     : 'Discord did not confirm delivery. Check the channel before sending another message.', !definite);
 }
 
-export function createBot(config: Config, hooks: Hooks): BotService & { start(): Promise<void> } {
+export function createBot(config: Config, hooks: Hooks): BotService & { client: Client; start(): Promise<void> } {
   const client: Client = new Client({
-    intents: [GatewayIntentBits.Guilds],
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages],
+    partials: [Partials.Channel],
     allowedMentions: { parse: [], repliedUser: false },
     // Guild, channel, role and overwrite caches must remain intact for Discord
     // permission resolution. Keep message content and unused entities uncached.
@@ -120,6 +121,7 @@ export function createBot(config: Config, hooks: Hooks): BotService & { start():
   });
 
   return {
+    client,
     status: () => ({ ...current }),
     async start() {
       if (!config.configured) return;

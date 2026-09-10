@@ -14,10 +14,12 @@ import { assertGrantChange, resolveAccess } from './permissions.js';
 import { PERMISSIONS, type Permission } from '../shared/permissions.js';
 import { BotUnavailableError, type BotService } from './bot/types.js';
 import { deliverMessage, DeliveryConflictError, publicDelivery } from './messages.js';
+import { InboxError } from '../shared/inbox.js';
+import type { InboxService } from './inbox/service.js';
 
 class HttpError extends Error { constructor(readonly statusCode:number,message:string) { super(message); } }
 const snowflake = z.string().regex(/^\d{17,20}$/);
-export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?:BotService) {
+export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?:BotService,inbox?:InboxService) {
   const app = Fastify({logger:false,trustProxy:false,bodyLimit:16_384,requestTimeout:30_000});
   const sessionCookie = config.production ? '__Host-dm_session' : 'dm_session';
   const stateCookie = config.production ? '__Host-dm_oauth' : 'dm_oauth';
@@ -55,6 +57,7 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?
     }
   });
   app.setErrorHandler((error,request,reply)=>{
+    if(error instanceof InboxError)return reply.code(error.statusCode).send({error:error.message});
     if(error instanceof BotUnavailableError)return reply.code(503).send({error:'The bot is offline. Wait for it to reconnect before sending.'});
     if(error instanceof DeliveryConflictError)return reply.code(409).send({error:error.message});
     if (error instanceof z.ZodError) return reply.code(400).send({error:'Check the request fields and try again.'});
@@ -71,7 +74,7 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?
     return reply.code(status >= 400 && status < 600 ? status : 500).send({error:error instanceof HttpError ? error.message : status === 429 ? 'Too many requests. Please wait a minute.' : status === 413 ? 'This request is too large.' : 'The request could not be completed.'});
   });
   app.get('/healthz',async()=>({ok:true}));
-  app.get('/api/status',async()=>({configured:config.configured,service:'discord-bot',stage:2}));
+  app.get('/api/status',async()=>({configured:config.configured,service:'discord-bot',stage:3}));
   app.get('/auth/login',{config:{rateLimit:{max:5,timeWindow:'1 minute'}}},async(request,reply)=>{
     if (!config.configured) throw new HttpError(503,'Discord sign-in has not been configured yet.');
     const state=randomToken(), binding=randomToken();
@@ -170,6 +173,49 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?
     const data=session(request);
     const body=z.object({completed:z.boolean(),step:z.number().int().min(0).max(5)}).strict().parse(request.body);
     store.setOnboarding(data.user.id,body.completed,body.step); return {ok:true};
+  });
+  function staffInbox() {if(!inbox)throw new HttpError(503,'The staff inbox is not available.');return inbox;}
+  app.get('/api/guilds/:guildId/inbox',async request=>{
+    const c=await context(request);
+    const canRead=c.access.permissions.includes('inbox.read');
+    if(!canRead && !c.access.permissions.includes('settings.manage'))throw new HttpError(403,'Staff inbox access is required.');
+    const query=z.object({status:z.enum(['open','closed']).default('open'),offset:z.coerce.number().int().min(0).max(100000).default(0)}).parse(request.query);
+    const service=staffInbox();
+    return {settings:service.persistence.getSettings(c.guild.id),...(canRead ? service.persistence.listTickets(c.guild.id,query.status,query.offset) : {tickets:[],nextOffset:null})};
+  });
+  app.put('/api/guilds/:guildId/inbox/settings',async request=>{
+    const c=await context(request,'settings.manage');
+    const {enabled}=z.object({enabled:z.boolean()}).strict().parse(request.body);
+    staffInbox().configure(c.guild.id,c.data.user.id,enabled);return {ok:true};
+  });
+  app.get('/api/guilds/:guildId/inbox/:ticketId',async request=>{
+    const c=await context(request,'inbox.read');
+    const {ticketId}=z.object({ticketId:z.string().uuid()}).parse(request.params);
+    const {before}=z.object({before:z.coerce.number().int().positive().optional()}).parse(request.query);
+    const persistence=staffInbox().persistence;
+    const ticket=persistence.getTicket(c.guild.id,ticketId);
+    if(!ticket)throw new HttpError(404,'This conversation was not found.');
+    return {ticket,...persistence.listMessages(c.guild.id,ticketId,before)};
+  });
+  app.post('/api/guilds/:guildId/inbox/:ticketId/replies',{config:{rateLimit:{max:10,timeWindow:'1 minute'}}},async request=>{
+    const c=await context(request,'inbox.reply');
+    if(!c.access.permissions.includes('inbox.read'))throw new HttpError(403,'Reading the staff inbox is also required to reply.');
+    const {ticketId}=z.object({ticketId:z.string().uuid()}).parse(request.params);
+    const body=z.object({content:z.string().trim().min(1).max(2000),requestId:z.string().uuid()}).strict().parse(request.body);
+    return {message:await staffInbox().reply(c.guild.id,ticketId,c.data.user.id,body.requestId,body.content)};
+  });
+  app.get('/api/guilds/:guildId/inbox/:ticketId/replies/:requestId',async request=>{
+    const c=await context(request,'inbox.read');
+    const params=z.object({ticketId:z.string().uuid(),requestId:z.string().uuid()}).parse(request.params);
+    const message=staffInbox().persistence.getReply(c.guild.id,params.ticketId,params.requestId);
+    if(!message)throw new HttpError(404,'That reply was not found.');return {message};
+  });
+  app.post('/api/guilds/:guildId/inbox/:ticketId/close',async request=>{
+    const c=await context(request,'inbox.reply');
+    if(!c.access.permissions.includes('inbox.read'))throw new HttpError(403,'Reading the staff inbox is also required to close a conversation.');
+    const {ticketId}=z.object({ticketId:z.string().uuid()}).parse(request.params);
+    z.object({}).strict().parse(request.body);
+    staffInbox().close(c.guild.id,ticketId,c.data.user.id);return {ok:true};
   });
   const webRoot=resolve('dist/web');
   if (existsSync(resolve(webRoot,'index.html'))) {

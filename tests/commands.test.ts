@@ -69,10 +69,10 @@ function mockCommand(t: TestContext, commandName: string, input = membership()) 
 
 test('members only see help and ping; role names do not grant dashboard access', () => {
   const access = commandAccess(membership());
-  assert.deepEqual(visibleCommands(access).map(item => item.name), ['help', 'ping']);
+  assert.deepEqual(visibleCommands(access).map(item => item.name), ['help', 'ping', 'contact']);
   assert.equal(canUseCommand('dashboard', access), false);
   assert.equal(helpText(access).includes('/dashboard'), false);
-  assert.equal(helpText(access).includes('/contact'), false);
+  assert.equal(helpText(access).includes('/contact'), true);
 });
 
 test('current Administrator permission exposes dashboard regardless of role name', () => {
@@ -80,7 +80,7 @@ test('current Administrator permission exposes dashboard regardless of role name
   input.roles[1].permissions = '8';
   input.roles[1].name = 'Staff';
   const access = commandAccess(input);
-  assert.deepEqual(visibleCommands(access).map(item => item.name), ['help', 'dashboard', 'ping']);
+  assert.deepEqual(visibleCommands(access).map(item => item.name), ['help', 'dashboard', 'ping', 'contact']);
   assert.equal(canUseCommand('dashboard', access), true);
 });
 
@@ -111,7 +111,7 @@ test('all command visibility uses the same handler authorization policy', () => 
 
 test('registered commands are guild-only and dashboard defaults to Administrator', () => {
   const definitions = commandDefinitions();
-  assert.deepEqual(definitions.map(command => command.name), ['help', 'dashboard', 'ping']);
+  assert.deepEqual(definitions.map(command => command.name), ['help', 'dashboard', 'ping', 'contact']);
   for (const command of definitions) {
     assert.deepEqual(command.contexts, [InteractionContextType.Guild]);
     assert.deepEqual(command.integration_types, [ApplicationIntegrationType.GuildInstall]);

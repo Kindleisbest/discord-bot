@@ -1,6 +1,6 @@
 # Discord Bot
 
-A Raspberry Pi-friendly Discord management bot and accessible administration website. **In development: stages 1–2 implemented; live Discord setup still pending. This is not yet the complete management bot.**
+A Raspberry Pi-friendly Discord management bot and accessible administration website. **In development: login, permissions, channel messaging, and the staff DM inbox are implemented; live Discord setup still pending. This is not yet the complete management bot.**
 
 ## Implemented
 
@@ -9,9 +9,11 @@ A Raspberry Pi-friendly Discord management bot and accessible administration web
 - Per-server website capabilities, strictly lower-role delegation, protection against changing your own roles or granting capabilities you lack.
 - Encrypted server-side OAuth sessions, hashed session IDs, 30-minute idle and 8-hour absolute expiry, logout/revocation, CSRF/origin checks, security headers, rate limits, prepared SQL.
 - Accessible dashboard shell, server selection, activity, role editor, first-login walkthrough with skip/reset, accessibility and privacy statements.
-- Guilds-only bot connection, ephemeral `/help`, `/dashboard`, and `/ping`, with permission-aware help and two-minute reply deletion.
+- Bot connection using Guilds and DirectMessages intents, with no privileged Message Content intent. Private `/help`, `/dashboard`, `/ping`, and `/contact` replies, permission-aware help, and two-minute deletion of server command replies.
 - Website channel composer with draft review, disabled mention pings, durable duplicate-send protection, delivery status checks, and uncertain-send recovery.
-- SQLite activity retention and 94 passing security/behavior tests. Message archiving itself is a later stage.
+- Opt-in staff inbox for each server. Members explicitly choose their server through `/contact` or a DM server picker; current membership is verified before accepting messages or sending staff replies.
+- Encrypted DM text and attachment metadata, retained for 90 days. Authorized administrators can read conversations, review and send replies, check delivery status, and close conversations. Attachment files are not downloaded or archived; Discord links can expire.
+- SQLite activity retention and automated security/behavior checks. Server-channel message audit and exports remain a later stage.
 
 ## Local development
 
@@ -31,7 +33,7 @@ The optional frontend development server is `npm run dev:web`; the backend is `n
 
 ## Development stages
 
-See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete request and current resume point. Next: staff DM inbox and 90-day message audit, events, tutorials, Instagram-link embeds, leveling after the questionnaire, deployment hardening, and the final illustrated Raspberry Pi installation PDF.
+See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete request and current resume point. Remaining work includes the 90-day server-channel message audit and exports, events, member tutorials, Instagram-link embeds, leveling after the questionnaire, deployment hardening, and the final illustrated Raspberry Pi installation PDF.
 
 Tests use a fake Discord adapter to exercise security decisions without credentials. Live OAuth, a Discord test server, Raspberry Pi load, and public deployment still require validation. No claim of complete security or accessibility certification is made.
 
