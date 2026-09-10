@@ -44,7 +44,9 @@ NEXT: stage 3b opt-in server-channel message audit and safe exports (including r
 
 GitHub repository is public: https://github.com/Kindleisbest/discord-bot. Publish source/docs only. CLI authentication is invalid; authenticated connector Git Data create_tree/create_commit/update_ref works. Use non-force writes with the verified current remote parent. Keep `.env`, runtime data, backups, exports, and temporary fake-auth UI harnesses ignored. The test harness is isolated on loopback and is not shipped with the application. Root database schema remains version 2; the inbox owns additional tables. No deployed inbox-data migration is needed yet because no real installation exists.
 
-Usage on resume: 4% five-hour used, 65% weekly used. Latest check: 63% five-hour used, 74% weekly used. Recheck before starting the next substantial stage and stop at a safe checkpoint under the user's 5% rule. No reset credit was redeemed.
+Stage 3a is saved and verified on GitHub at `cfb0972de1a4229af91068196ea2613d50a2edaf`; its tree exactly matches the local checkpoint. The isolated fake Discord preview has been stopped.
+
+Usage on resume: 4% five-hour used, 65% weekly used. Final check: 75% five-hour used (25% remaining), 76% weekly used (24% remaining). Pause at this tested milestone because the next substantial audit/export implementation risks exhausting the user's 5% buffer. User should say `resume`; recheck allowance first. No reset credit was redeemed.
 
 ## Architecture
 
