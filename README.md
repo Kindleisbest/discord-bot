@@ -40,6 +40,10 @@ See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete request and current resu
 
 Tests use a fake Discord adapter to exercise security decisions without credentials. Live OAuth, a Discord test server, Raspberry Pi load, and public deployment still require validation. No claim of complete security or accessibility certification is made.
 
+## Administrator access
+
+See the [administrator permissions guide](docs/ADMIN_PERMISSIONS.md) for feature requirements, role setup examples, delegation rules, and troubleshooting.
+
 ## Security
 
 See [SECURITY.md](SECURITY.md). No paid service or AI API is needed. Cloudflare alone is not the security boundary. A stable free address and secure Cloudflare-compatible deployment path will be decided during deployment; a free registrable domain is not guaranteed.
