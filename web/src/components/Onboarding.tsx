@@ -9,7 +9,7 @@ const STEPS = [
   { title: 'Understand your access', text: 'Signing in verifies your Discord account. The service also checks your current membership and Administrator permission. Owners always retain full website access, even without a role.' },
   { title: 'Set up role permissions', text: 'Open Permissions to configure website access. Owners can manage every role. Delegated administrators can manage eligible lower roles, using only permissions they already have. Website grants never change Discord roles.' },
   { title: 'Messages and staff contact', text: 'Overview records activity without message text. Use Messages to review and send channel messages. Enable Staff inbox for a server when your team is ready to receive member DMs, then give staff read and reply access. Members choose their server through /contact or the bot’s DM picker. Inbox messages are retained for 90 days; attachment links may expire sooner.' },
-  { title: 'You are ready to begin', text: 'Choose your server and review Permissions. Setup guide is always available at the top of the page. Accessibility and privacy information are linked in the footer. Use Reset tutorial to take this walkthrough again.' },
+  { title: 'Help members get started', text: 'Open Member tutorial to write and publish channel instructions. Members run /tutorial in Discord for a private walkthrough of channels they can access. Setup guide is always available, and Reset website walkthrough reopens this introduction.' },
 ];
 
 export function Onboarding({ session, onChange, onAccessError }: { session: Session; onChange: (value: Session['onboarding']) => void; onAccessError: (error: ApiError) => void }) {

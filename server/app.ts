@@ -20,10 +20,13 @@ import { EventError } from '../shared/events.js';
 import type { EventService } from './events/service.js';
 import { publicEvent } from './events/store.js';
 import { eventDraftSchema } from './events/validation.js';
+import { TutorialError } from '../shared/tutorial.js';
+import type { TutorialService } from './tutorial/service.js';
+import { tutorialInputSchema } from './tutorial/validation.js';
 
 class HttpError extends Error { constructor(readonly statusCode:number,message:string) { super(message); } }
 const snowflake = z.string().regex(/^\d{17,20}$/);
-export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?:BotService,inbox?:InboxService,events?:EventService) {
+export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?:BotService,inbox?:InboxService,events?:EventService,tutorials?:TutorialService) {
   const app = Fastify({logger:false,trustProxy:false,bodyLimit:16_384,requestTimeout:30_000});
   const sessionCookie = config.production ? '__Host-dm_session' : 'dm_session';
   const stateCookie = config.production ? '__Host-dm_oauth' : 'dm_oauth';
@@ -61,6 +64,7 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?
     }
   });
   app.setErrorHandler((error,request,reply)=>{
+    if(error instanceof TutorialError)return reply.code(error.statusCode).send({error:error.message});
     if(error instanceof BotSendError && !error.uncertain)return reply.code(409).send({error:error.message});
     if(error instanceof EventError)return reply.code(error.statusCode).send({error:error.message});
     if(error instanceof InboxError)return reply.code(error.statusCode).send({error:error.message});
@@ -224,6 +228,16 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?
     staffInbox().close(c.guild.id,ticketId,c.data.user.id);return {ok:true};
   });
   function eventService() {if(!events)throw new HttpError(503,'Events are not available.');return events;}
+  function tutorialService() {if(!tutorials)throw new HttpError(503,'Member tutorials are not available.');return tutorials;}
+  app.get('/api/guilds/:guildId/tutorial',async request=>{
+    const c=await context(request,'tutorial.manage');return tutorialService().editor(c.guild.id);
+  });
+  app.put('/api/guilds/:guildId/tutorial/:channelId',{config:{rateLimit:{max:20,timeWindow:'1 minute'}}},async request=>{
+    const c=await context(request,'tutorial.manage');
+    const {channelId}=z.object({channelId:snowflake}).parse(request.params);
+    const input=tutorialInputSchema.parse(request.body);
+    return {step:await tutorialService().save(c.guild.id,channelId,c.data.user.id,input)};
+  });
   app.get('/api/guilds/:guildId/events',async request=>{
     const c=await context(request,'events.manage');return {records:eventService().store.list(c.guild.id)};
   });

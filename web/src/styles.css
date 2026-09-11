@@ -41,7 +41,7 @@ svg { flex-shrink: 0; }
 .nav-link.selected { background: var(--selected); color: #142789; }
 .sidebar-note { font-size: 14px; margin: auto 14px 0; padding-top: 14px; border-top: 1px solid #ced6e5; }
 .workspace { display: flex; min-width: 0; flex-direction: column; }
-.topbar { display: flex; align-items: center; justify-content: flex-end; gap: 20px; padding: 17px 27px; min-height: 80px; border-bottom: 1px solid #e1e6f0; }
+.topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 20px; padding: 17px 27px; min-height: 80px; border-bottom: 1px solid #e1e6f0; }
 .header-actions { margin-left: auto; display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
 .signed-in-user { font-size: 14px; color: var(--muted); max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 46px; padding: 10px 18px; border: 1px solid transparent; border-radius: 5px; font-size: 16px; line-height: 1.4; font-weight: 570; text-decoration: none; white-space: nowrap; }
@@ -223,6 +223,34 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
 .event-card:last-child { border-bottom: 0; }
 .event-card h3 { overflow-wrap: anywhere; }
 .event-history-time { font-size: 14px; margin-top: 7px; overflow-wrap: anywhere; }
+.tutorial-intro { max-width: 840px; font-size: 17px; margin-bottom: 25px; }
+.tutorial-summary { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.tutorial-summary p { font-size: 16px; }
+.tutorial-summary strong { color: var(--ink); }
+.tutorial-summary .button { white-space: normal; text-align: left; }
+.member-tutorial-editor { max-width: 840px; min-width: 0; }
+.tutorial-channel-field { max-width: 100%; }
+.tutorial-channel-field select { width: 100%; }
+.tutorial-channel-navigation { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin: 18px 0 30px; }
+.tutorial-channel-navigation p { font-size: 14px; }
+.tutorial-step-heading h2 { overflow-wrap: anywhere; font-size: 25px; }
+.tutorial-step-heading h2:focus { outline: none; }
+.tutorial-step-heading > p { margin-top: 8px; font-size: 15px; }
+.tutorial-fields { border: 0; margin: 0; padding: 0; min-width: 0; }
+.tutorial-fields .field { max-width: none; }
+.tutorial-fields input[type="text"], .tutorial-fields input:not([type]) { color: var(--ink); background: #fff; border: 1px solid #aebad0; border-radius: 5px; padding: 11px 12px; min-height: 44px; width: 100%; min-width: 0; }
+.tutorial-fields input:disabled { background: var(--rail); color: var(--muted); }
+.tutorial-fields [aria-invalid="true"] { border-color: #9a2739; }
+.tutorial-publish { border: 0; margin-top: 12px; }
+.tutorial-preview { margin: 26px 0; }
+.tutorial-preview summary { cursor: pointer; padding: 12px 0; font-size: 16px; color: var(--accent); width: fit-content; }
+.tutorial-preview summary:focus-visible { outline: 3px solid #365ae2; outline-offset: 4px; }
+.tutorial-preview .message-preview { min-height: 0; margin: 8px 0; }
+.tutorial-preview .message-preview p { color: var(--ink); font-size: 17px; margin-top: 12px; }
+.tutorial-conflict { background: #fff9ef; border: 1px solid #dfc799; border-radius: 6px; margin: 24px 0; padding: 20px; }
+.tutorial-conflict h3 { color: #654714; }
+.tutorial-conflict p { font-size: 16px; margin-top: 9px; color: #654714; }
+.tutorial-conflict .button { margin-top: 17px; white-space: normal; }
 @media (max-width: 700px) {
   .event-field-grid { grid-template-columns: minmax(0, 1fr); }
   .event-review-details, .event-status-list { grid-template-columns: minmax(0, 1fr); gap: 6px; }
@@ -301,6 +329,9 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
   .tutorial-dialog h2 { font-size: 24px; }
   .composer-status { align-items: flex-start; flex-direction: column; gap: 13px; }
   .composer-actions { align-items: stretch; flex-direction: column; }
+  .tutorial-channel-navigation { gap: 10px; }
+  .tutorial-channel-navigation p { order: -1; flex-basis: 100%; }
+  .tutorial-channel-navigation .button { font-size: 13px; gap: 7px; padding: 9px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }

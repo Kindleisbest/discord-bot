@@ -1,5 +1,5 @@
 import {
-  ActionRowBuilder, ApplicationIntegrationType, ButtonBuilder, ButtonStyle,
+  ActionRowBuilder, ApplicationIntegrationType, ButtonBuilder, ButtonStyle, ChannelType,
   InteractionContextType, MessageFlags, PermissionFlagsBits, SlashCommandBuilder,
   type ChatInputCommandInteraction, type Client,
 } from 'discord.js';
@@ -13,6 +13,7 @@ export const COMMANDS = [
   { name: 'dashboard', description: 'Open this server’s administration website.', administrator: true },
   { name: 'ping', description: 'Check whether the bot is responding.', administrator: false },
   { name: 'contact', description: 'Choose this server’s staff inbox, then message the bot privately.', administrator: false },
+  { name: 'tutorial', description: 'Explore this server’s channel tutorials privately.', administrator: false },
 ] as const;
 export type CommandName = typeof COMMANDS[number]['name'];
 
@@ -42,6 +43,10 @@ export function commandDefinitions() {
       .setDescription(command.description).setContexts(InteractionContextType.Guild)
       .setIntegrationTypes(ApplicationIntegrationType.GuildInstall);
     if (command.administrator) definition.setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
+    if (command.name === 'tutorial') definition.addChannelOption(option => option.setName('channel')
+      .setDescription('Start with a particular channel.').setRequired(false)
+      .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement, ChannelType.GuildVoice,
+        ChannelType.GuildStageVoice, ChannelType.GuildForum, ChannelType.GuildMedia));
     return definition.toJSON();
   });
 }
@@ -89,7 +94,8 @@ export function createCommandHandler(client: Client, config: Config, addActivity
   }
 
   async function handle(interaction: ChatInputCommandInteraction): Promise<void> {
-    if (stopped || interaction.commandName === 'contact' || !COMMANDS.some(command => command.name === interaction.commandName)) return;
+    if (stopped || ['contact', 'tutorial'].includes(interaction.commandName)
+      || !COMMANDS.some(command => command.name === interaction.commandName)) return;
     try {
       // The acknowledgement is the first network request, before any role fetch.
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });

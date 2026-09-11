@@ -2,7 +2,7 @@ import { BookOpen, CalendarDays, Home, LogOut, MessageSquare, Inbox, Users } fro
 import type { ReactNode } from 'react';
 import type { GuildSummary, Session } from '../api';
 
-export type Page = 'overview' | 'messages' | 'inbox' | 'events' | 'permissions' | 'setup' | 'accessibility' | 'privacy';
+export type Page = 'overview' | 'messages' | 'inbox' | 'events' | 'tutorial' | 'permissions' | 'setup' | 'accessibility' | 'privacy';
 
 export function Shell({ children, page, session, guilds, selectedGuild, onGuildChange, onLogout, onResetTutorial, loggingOut }: {
   children: ReactNode; page: Page; session: Session | null; guilds: GuildSummary[]; selectedGuild: string;
@@ -17,6 +17,7 @@ export function Shell({ children, page, session, guilds, selectedGuild, onGuildC
         <a className={`nav-link ${page === 'messages' ? 'selected' : ''}`} href="#messages" aria-current={page === 'messages' ? 'page' : undefined}><MessageSquare aria-hidden="true" />Messages</a>
         <a className={`nav-link ${page === 'inbox' ? 'selected' : ''}`} href="#inbox" aria-current={page === 'inbox' ? 'page' : undefined}><Inbox aria-hidden="true" />Staff inbox</a>
         <a className={`nav-link ${page === 'events' ? 'selected' : ''}`} href="#events" aria-current={page === 'events' ? 'page' : undefined}><CalendarDays aria-hidden="true" />Events</a>
+        <a className={`nav-link ${page === 'tutorial' ? 'selected' : ''}`} href="#tutorial" aria-current={page === 'tutorial' ? 'page' : undefined}><BookOpen aria-hidden="true" />Member tutorial</a>
         <a className={`nav-link ${page === 'permissions' ? 'selected' : ''}`} href="#permissions" aria-current={page === 'permissions' ? 'page' : undefined}><Users aria-hidden="true" />Permissions</a>
       </nav>
       <p className="sidebar-note">Your servers, clearly separated.</p>
@@ -25,7 +26,7 @@ export function Shell({ children, page, session, guilds, selectedGuild, onGuildC
       <header className="topbar">
         {session && guilds.length ? <div className="server-picker"><label htmlFor="server">Server</label><select id="server" value={selectedGuild} onChange={event => onGuildChange(event.target.value)}><option value="">Choose a server</option>{guilds.map(guild => <option key={guild.id} value={guild.id}>{guild.name}{guild.isOwner ? ' · Owner' : ''}</option>)}</select></div> : null}
         <div className="header-actions">
-          {session ? <><span className="signed-in-user">{session.user.username}</span><button className="text-button tutorial-reset" onClick={onResetTutorial}>Reset tutorial</button><button className="icon-button" title="Sign out" aria-label="Sign out" disabled={loggingOut} onClick={onLogout}><LogOut size={21} aria-hidden="true" /></button></> : null}
+          {session ? <><span className="signed-in-user">{session.user.username}</span><button className="text-button tutorial-reset" onClick={onResetTutorial}>Reset website walkthrough</button><button className="icon-button" title="Sign out" aria-label="Sign out" disabled={loggingOut} onClick={onLogout}><LogOut size={21} aria-hidden="true" /></button></> : null}
           <a className="button button-outline" href="#setup"><BookOpen size={22} aria-hidden="true" />Setup guide</a>
         </div>
       </header>

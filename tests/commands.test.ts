@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test, { type TestContext } from 'node:test';
 import {
-  ApplicationIntegrationType, ButtonStyle, Collection, DiscordAPIError,
+  ApplicationCommandOptionType, ApplicationIntegrationType, ButtonStyle, ChannelType, Collection, DiscordAPIError,
   HTTPError, InteractionContextType, MessageFlags,
   type ChatInputCommandInteraction, type Client, type InteractionEditReplyOptions,
 } from 'discord.js';
@@ -67,12 +67,13 @@ function mockCommand(t: TestContext, commandName: string, input = membership()) 
   return { handler, client, interaction, rawInteraction, fakeClient, events, edits, acknowledgements, fetches, activity };
 }
 
-test('members only see help and ping; role names do not grant dashboard access', () => {
+test('members see member commands; role names do not grant dashboard access', () => {
   const access = commandAccess(membership());
-  assert.deepEqual(visibleCommands(access).map(item => item.name), ['help', 'ping', 'contact']);
+  assert.deepEqual(visibleCommands(access).map(item => item.name), ['help', 'ping', 'contact', 'tutorial']);
   assert.equal(canUseCommand('dashboard', access), false);
   assert.equal(helpText(access).includes('/dashboard'), false);
   assert.equal(helpText(access).includes('/contact'), true);
+  assert.equal(helpText(access).includes('/tutorial'), true);
 });
 
 test('current Administrator permission exposes dashboard regardless of role name', () => {
@@ -80,7 +81,7 @@ test('current Administrator permission exposes dashboard regardless of role name
   input.roles[1].permissions = '8';
   input.roles[1].name = 'Staff';
   const access = commandAccess(input);
-  assert.deepEqual(visibleCommands(access).map(item => item.name), ['help', 'dashboard', 'ping', 'contact']);
+  assert.deepEqual(visibleCommands(access).map(item => item.name), ['help', 'dashboard', 'ping', 'contact', 'tutorial']);
   assert.equal(canUseCommand('dashboard', access), true);
 });
 
@@ -111,12 +112,31 @@ test('all command visibility uses the same handler authorization policy', () => 
 
 test('registered commands are guild-only and dashboard defaults to Administrator', () => {
   const definitions = commandDefinitions();
-  assert.deepEqual(definitions.map(command => command.name), ['help', 'dashboard', 'ping', 'contact']);
+  assert.deepEqual(definitions.map(command => command.name), ['help', 'dashboard', 'ping', 'contact', 'tutorial']);
   for (const command of definitions) {
     assert.deepEqual(command.contexts, [InteractionContextType.Guild]);
     assert.deepEqual(command.integration_types, [ApplicationIntegrationType.GuildInstall]);
     assert.equal(command.default_member_permissions, command.name === 'dashboard' ? '8' : undefined);
   }
+});
+
+test('tutorial accepts an optional supported top-level guild channel', () => {
+  const tutorial = commandDefinitions().find(command => command.name === 'tutorial')!;
+  const option = tutorial.options![0];
+  assert.equal(option.type, ApplicationCommandOptionType.Channel);
+  assert.equal(option.name, 'channel');
+  assert.equal(option.required, false);
+  assert.deepEqual('channel_types' in option && option.channel_types, [
+    ChannelType.GuildText, ChannelType.GuildAnnouncement, ChannelType.GuildVoice,
+    ChannelType.GuildStageVoice, ChannelType.GuildForum, ChannelType.GuildMedia,
+  ]);
+});
+
+test('the base command handler leaves tutorial acknowledgement to its dedicated gateway', async t => {
+  const mock = mockCommand(t, 'tutorial');
+  await mock.handler.handle(mock.interaction);
+  assert.deepEqual(mock.events, []);
+  assert.deepEqual(mock.edits, []);
 });
 
 test('help acknowledges privately before freshly fetching roles and membership', async t => {

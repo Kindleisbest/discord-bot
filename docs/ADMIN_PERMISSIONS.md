@@ -22,6 +22,7 @@ These website profiles limit access to this dashboard. Discord Administrator sti
 | View event requests and event-delivery results | Manage events |
 | Create an event with its announcement | Manage events **and** Send channel messages |
 | Send a confirmed event's missing announcement | Manage events **and** Send channel messages |
+| Write, publish, unpublish, or clear channel instructions | Edit member tutorial |
 | Change eligible lower roles' website access | Manage lower roles, subject to the rules below |
 | Skip or reset your administrator walkthrough | Any signed-in administrator; this only changes your own progress |
 
@@ -46,6 +47,7 @@ Example website profiles for accounts that already meet the Administrator requir
 | Manage inbox availability | Manage settings |
 | Send channel announcements | Send channel messages |
 | Organize events and announcements | Manage events + Send channel messages |
+| Maintain member onboarding instructions | Edit member tutorial |
 | Delegate selected access | Manage lower roles + the specific capabilities they may delegate |
 
 These are examples, not automatically created roles.
@@ -67,6 +69,7 @@ Your website grant authorizes an action through the dashboard. The bot must also
 - External events: Create Events at server level.
 - Voice events: Create Events, View Channel, and Connect in the selected voice channel.
 - Stage events: Create Events, View Channel, Manage Channels, Mute Members, and Move Members in the selected Stage channel.
+- Member tutorials: the bot and member must both have View Channel for each published step. Members use `/tutorial` without website access.
 - Staff DMs: the inbox must be enabled and the member must still belong to the selected server; Discord must allow delivery of the direct message.
 
 The application refreshes access before server actions. A stale open browser tab does not preserve access after the Administrator permission or server membership is removed.
@@ -79,6 +82,6 @@ If an event exists but its announcement definitely failed, fix the bot permissio
 
 ## Features still in development
 
-Read message audit and Export message audit are reserved for the separate feature/message-audit branch. Granting them does not start server-chat collection on main. Edit member tutorial and Manage Instagram are also reserved until those features are implemented.
+Read message audit and Export message audit are reserved for the separate feature/message-audit branch. Granting them does not start server-chat collection on main. Manage Instagram is also reserved until that feature is implemented.
 
 See [setup notes](SETUP.md), [security details](../SECURITY.md), and the [project checkpoint](../PROJECT_PLAN.md). The final illustrated Raspberry Pi installation PDF will include the completed release's permission setup.

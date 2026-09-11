@@ -1,6 +1,6 @@
 # Discord Bot — project checkpoint
 
-Requested by Andrew, 2026-09-08. Work through the stages in order, save completed work to GitHub, and keep this file current. Check Codex five-hour and weekly remaining allowance between stages; if either is below 5%, finish a safe checkpoint and ask the user to say `resume`. Do not redeem usage resets without explicit permission.
+Requested by Andrew, 2026-09-08. Work through the stages in order, save completed work to GitHub, and keep this file current. Current usage rule (updated by Andrew on 2026-09-11): stop feature work when either the five-hour or weekly allowance is exhausted. Credits may be used only to finish saving work, then stop. Do not spend credits on more development. Do not redeem banked reset credits unless needed and explicitly authorized. This supersedes the earlier 5% stopping threshold recorded below.
 
 ## Confirmed requirements
 
@@ -27,7 +27,7 @@ Requested by Andrew, 2026-09-08. Work through the stages in order, save complete
 1. [x] Secure foundation: configuration, persistent database, Discord OAuth sessions, live role checks, server isolation, owner override, permission editor, accessible dashboard shell, health checks, security tests.
 2. [x] Bot gateway, slash /help, /dashboard and /ping, latest activity, reviewed website composer. /contact belongs to the staff inbox stage.
 3. [ ] Staff inbox and message audit. Staff DM inbox/replies/routing/90-day purge are complete; server-channel audit and exports remain.
-4. [ ] Events with graphics and announcements are implemented and locally tested. Configurable member tutorials remain; admin onboarding is already implemented.
+4. [x] Events with graphics and announcements, configurable member tutorials, and administrator onboarding are implemented and locally tested. Live Discord verification remains.
 5. [ ] Instagram links shared in Discord: configurable destination and custom embed.
 6. [ ] Ask detailed leveling questions; implement only after answers.
 7. [ ] Pi deployment hardening, free-address decision, backup/restore, end-to-end and accessibility validation.
@@ -64,3 +64,17 @@ Latest usage before saving: 81% five-hour used, 93% weekly used (7% weekly remai
 ## Architecture
 
 Node.js 24 LTS + TypeScript, Fastify serving a prebuilt React/Vite frontend, discord.js gateway in the same service, SQLite on local disk. One small process instead of a server fleet for Pi 3 B+. Opaque server-side sessions, encrypted sensitive fields, prepared SQL, bounded reads, no login bypass or demo backend. Production binds loopback behind a secure access path. All bot tokens stay server-side. No paid AI services required.
+
+## Member tutorial milestone — 2026-09-11
+
+Stage 4b implemented on main: website channel-by-channel authoring, encrypted draft/published text, preview, clear/unpublish, optimistic edit conflict protection, unsaved-navigation warnings, and /tutorial with optional starting channel and private Previous/Next/Close. Current member and bot visibility are checked on every page lookup. Tokens are user/server bound, sessions expire after ten minutes, and lookup/session/rate limits protect the Pi. No server-channel message reading was added. Configuration is retained until changed/cleared/bot removal; member progress is not persisted.
+
+Browser QA with isolated simulated Discord passed draft/publish, unsaved channel/page warnings, input validation/focus, escaped preview, a real concurrent-edit conflict and deliberate reload, clear/unpublish, keyboard navigation and mobile 390px without overflow. Screenshot: docs/design/tutorial-verified.png. Live Discord and Pi tests remain outstanding. The fake-auth harness remains ignored and must be stopped before pausing.
+
+NEXT on main: Instagram links shared in Discord, with server-configured detection channels, destination and custom embed. Ask the detailed leveling questionnaire before building leveling. Audit remains unimplemented on feature/message-audit and requires explicit release approval; final PDF remains at the end. The owner-only Pi Party Easter egg is planned in docs/EASTER_EGG_PLAN.md and has not been implemented.
+
+Usage after personal reset: initial 13% five-hour used / 2% weekly used; latest implementation check 74% five-hour used / 12% weekly used. Check allowance again at the final safe checkpoint and after resume. The user redeemed the prior reset themselves; two credits remain, none redeemed by the assistant.
+
+Final tutorial verification: all 201 tests, both typechecks, and production build passed. Usage reached 92% five-hour used (8% remaining), 14% weekly used; finish saving and pause at this milestone to preserve the buffer. Say resume after allowance is available; recheck before the next substantial feature.
+
+Saving checkpoint: five-hour allowance reached 100% used; weekly 16% used. Andrew authorized credits only for completing the save. Finish GitHub verification and stop; do not start Instagram work on credits. No banked reset has been redeemed by the assistant.
