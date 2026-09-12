@@ -7,9 +7,10 @@ Prepared 12 September 2026. Leveling is not implemented. Andrew requested detail
 - Reward interactive participation, including sending messages, replying, and receiving reactions on a member's messages.
 - Giving a reaction must not earn XP for the person giving it; Andrew wants to avoid rewarding reaction spam.
 - Staff need safeguards and the ability to disable XP earning in selected channels.
-- “Other interactive activity” remains to be defined. Voice participation, forum discussions, and event attendance have not yet been individually confirmed.
+- Andrew clarified the scope as any activity that keeps people engaged in the server. Plan broadly for participation signals Discord exposes, instead of repeatedly asking Andrew to enumerate activity types. Exact eligibility and abuse rules still need to be settled.
+- Andrew chose **simpler shared controls for all activities**: one common set of XP amount, cooldown, and daily-limit settings, with channel/role exclusions, rather than separate numeric controls for each activity. The values and the way time-based participation uses those shared controls are still unset.
 
-The next questions cover additional activity types, whether replies get a bonus, reaction abuse/removal rules, and whether channels use an exclusion list or explicit enablement. Proposed safeguards—ignoring self/bot reactions, one reaction award per reacting person per message, no extra award for removal/re-addition, and configurable caps—are suggestions awaiting feedback. XP values, progression, role rewards, privacy/retention, and administrator controls still need answers. No leveling code has been added.
+See [activity feasibility and proposed counting rules](LEVELING_ACTIVITY_SCOPE.md) for available Discord signals and their limits. The next questions should resolve progression speed, shared anti-spam rules, rewards, channel exclusions/inheritance, and privacy/retention. Proposed safeguards—ignoring self/bot reactions, one reaction award per reacting person per message, and no extra award for removal/re-addition—are suggestions awaiting feedback. Do not interpret silence as choosing values or enabling every candidate signal. No leveling code has been added.
 
 ## First round: core behavior
 
