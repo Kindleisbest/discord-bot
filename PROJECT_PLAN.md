@@ -90,3 +90,11 @@ Andrew reported 66% usage, treated as used; the live usage meter remains unavail
 NEXT: implement controlled Instagram gateway/delivery with durable deduplication and uncertainty handling, confirm source/destination audience policy, then explicit enable/setup requirements. Existing settings must never silently activate on upgrade. Audit remains separate and unimplemented; leveling questionnaire and final installation PDF remain later. Save this checkpoint and pause; credits are authorized only to finish saving.
 
 Browser verification passed with simulated Discord: settings save, normalized color, source/destination separation, inactive status, unsaved navigation warning, conflict retention/reload, escaped preview, keyboard navigation, and 390px layout without overflow. Screenshot: docs/design/instagram-settings-verified.png. The temporary preview is stopped. Live Discord remains untested.
+
+## Instagram delivery-record checkpoint — 2026-09-11
+
+Andrew clarified that 23% means remaining. Earlier 90%/66% entries labeled used were assistant assumptions, not verified readings. The live usage meter is still unavailable; use the user's remaining-allowance reports and do not invent updated percentages. Credits remain authorized only for finishing saves.
+
+Implemented durable encrypted Instagram delivery reservations, per-event duplicate protection retaining the original destination, immutable terminal states, pending-to-uncertain restart recovery, exact 90-day expiry, per-server/global capacity limits, and source-snowflake age checks against replay after pruning. Main initializes/recover/prunes/removes this storage. No gateway or sender uses it yet and posting remains unavailable. All 223 automated tests, both typechecks, and production build pass. No frontend behavior changed.
+
+NEXT: implement enabled-setting migration with explicit activation, incoming gateway checks and bounded rate limits, audience policy and fresh authorization, actual Discord embed transport with safe uncertain-result handling, and website delivery status. Do not silently activate saved configurations. Audit stays separate, leveling requires the questionnaire, and the final installation PDF remains deferred. Save and verify this checkpoint, then pause before a larger stage.

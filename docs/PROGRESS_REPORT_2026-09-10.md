@@ -26,7 +26,7 @@ The secure website foundation, channel messaging, private staff inbox, event cre
 
 ## Validation completed
 
-- The latest implementation passed **216 automated security and behavior tests**, both application type checks, and the production build.
+- The latest implementation passed **223 automated security and behavior tests**, both application type checks, and the production build.
 - Local browser checks passed simulated sign-in, staff inbox enablement, reading, reviewing and sending a reply, closing a conversation, retained history, and footer navigation.
 - Mobile testing at 390px width found no horizontal overflow; the tested inbox flow produced no browser errors.
 - Tests used simulated Discord responses. No real credentials or member messages were used, and no live Discord messages were sent.
@@ -55,3 +55,5 @@ Continue the core bot on main with Instagram-link announcements. Develop the ser
 Latest checkpoint: all 201 tests, typechecks, and build passed. Tutorial browser checks passed draft/publish, clear, conflicting edits, unsaved-change warnings, keyboard navigation, escaped preview, and mobile layout. Screenshot: [member tutorial — simulated data](design/tutorial-verified.png).
 
 Instagram setup checkpoint: 216 tests, typechecks and build pass. The website saves draft configuration only; it does not yet send announcements.
+
+Delivery-record checkpoint: all 223 tests and build pass. Encrypted reservations, duplicate-event protection, restart recovery and retention are implemented internally; automatic Instagram posting remains unavailable.

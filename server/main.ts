@@ -20,6 +20,7 @@ import { createTutorialTransport } from './tutorial/discord.js';
 import { attachTutorialGateway } from './tutorial/gateway.js';
 import {InstagramSettingsStore,InstagramSettingsService} from './instagram/settings.js';
 import {createInstagramSettingsTransport} from './instagram/discord.js';
+import {InstagramDeliveryStore} from './instagram/deliveries.js';
 
 process.umask(0o077);
 if (existsSync('.env')) loadEnvFile('.env');
@@ -32,11 +33,13 @@ const inboxStore=new InboxStore(store.db,vault);
 const eventStore=new EventStore(store.db,vault);
 const tutorialStore=new TutorialStore(store.db,vault,(...args)=>store.addActivity(...args));
 const instagramStore=new InstagramSettingsStore(store.db,vault,(...args)=>store.addActivity(...args));
+const instagramDeliveries=new InstagramDeliveryStore(store.db,vault);
+instagramDeliveries.prune();instagramDeliveries.recover();
 eventStore.prune();eventStore.recover();
 store.prune();
 store.recoverPendingDeliveries();
 inboxStore.prune();inboxStore.recoverPendingReplies();
-const bot=createBot(config,{addActivity:(...args)=>store.addActivity(...args),removeGuild:id=>{instagramStore.removeGuild(id);tutorialStore.removeGuild(id);eventStore.removeGuild(id);inboxStore.removeGuild(id);store.removeGuild(id);}});
+const bot=createBot(config,{addActivity:(...args)=>store.addActivity(...args),removeGuild:id=>{instagramDeliveries.removeGuild(id);instagramStore.removeGuild(id);tutorialStore.removeGuild(id);eventStore.removeGuild(id);inboxStore.removeGuild(id);store.removeGuild(id);}});
 const inbox=new InboxService(inboxStore,createInboxTransport(bot.client),(...args)=>store.addActivity(...args));
 const inboxGateway=attachInboxGateway(bot.client,inbox);
 const events=new EventService(eventStore,createEventTransport(bot.client),(...args)=>store.addActivity(...args));
@@ -44,7 +47,7 @@ const tutorials=new TutorialService(tutorialStore,createTutorialTransport(bot.cl
 const tutorialGateway=attachTutorialGateway(bot.client,tutorials);
 const instagram=new InstagramSettingsService(instagramStore,createInstagramSettingsTransport(bot.client));
 const app=await buildApp(config,store,new DiscordHttpApi(config),bot,inbox,events,tutorials,instagram);
-const cleanup=setInterval(()=>{try {eventStore.prune();inboxStore.prune();store.prune();} catch {console.error('Scheduled data cleanup failed. Check storage and disk space.');}},60*60_000);
+const cleanup=setInterval(()=>{try {instagramDeliveries.prune();eventStore.prune();inboxStore.prune();store.prune();} catch {console.error('Scheduled data cleanup failed. Check storage and disk space.');}},60*60_000);
 cleanup.unref();
 let stopping=false;
 async function shutdown() {

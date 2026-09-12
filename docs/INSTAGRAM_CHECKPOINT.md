@@ -1,6 +1,6 @@
 # Instagram announcements — first implementation checkpoint
 
-The URL recognizer and per-server website settings are implemented and tested. Automatic posting is not connected to the bot gateway yet. This checkpoint does not send announcements, read Discord channel messages, fetch Instagram, or store messages.
+The URL recognizer, per-server website settings, and durable delivery-record foundation are implemented and tested. Automatic posting is not connected to the bot gateway yet. This checkpoint does not send announcements, read Discord channel messages, fetch Instagram, or store messages.
 
 ## Supported input
 
@@ -25,3 +25,17 @@ Implement the controlled gateway and delivery flow, then add an explicit off-by-
 Before activation, add bot permission checks, disabled mentions, durable duplicate-send protection, bounded work, delivery status, and safe handling of uncertain sends. Decide and document who can see reposted links when source and destination permissions differ. Build the accessible editor and test the complete flow using simulated Discord before live verification. Image/caption retrieval is not part of this URL helper.
 
 Server-chat archiving remains separate on `feature/message-audit`, subject to Andrew's release approval.
+
+## Durable delivery records
+
+The internal delivery store is ready for the future sender. A server/source-message/shortcode identity reserves one job atomically. Repeated copies of the same event retain the original destination and outgoing payload, even if settings change. Separate messages sharing the same Instagram post remain separate events; cross-message spam limits still belong in the gateway stage.
+
+Outgoing URL/text and routing/author identifiers are encrypted and authenticated to the server, job ID, timestamp, and record format. Only canonical tracking-free Instagram URLs are kept. This is an outgoing announcement record, not an archive of the original channel message. No gateway or sender currently calls the reservation function.
+
+Pending reservations become uncertain on startup. Sent, failed, and uncertain jobs cannot be reopened by this store or automatically replayed. The eventual sender must commit the reservation before posting and treat any failure to confirm or persist delivery as uncertain. Missing or unreadable storage must never be bypassed. Failed delivery is deliberately not retried by this checkpoint.
+
+Jobs expire locally at 90 days and are pruned on startup/hourly, with removal when the bot leaves a server. Retained jobs are capped at 1,000 per server and 10,000 overall, counting all statuses; new work is refused instead of evicting duplicate protection. Lists return at most 100 jobs. Cleanup does not delete Discord posts or backups.
+
+New reservations accept source message IDs from the last five minutes and reject IDs over one minute in the future. This prevents old event replays being accepted after retention cleanup. Delayed events outside that window will be skipped, and the Pi needs an accurate clock. The age check uses [Discord's documented snowflake timestamp](https://docs.discord.com/developers/reference#snowflakes); it does not prove server membership, channel access, or event authenticity. Those checks remain mandatory in the gateway/sender.
+
+Validation: 223 automated tests and the production build pass, including actual database close/reopen, uncertainty recovery, encrypted record tampering, stale-event expiry, capacity limits, and immutable terminal states. Live delivery remains untested and inactive.
