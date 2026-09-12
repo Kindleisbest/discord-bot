@@ -2,6 +2,15 @@
 
 Prepared 12 September 2026. Leveling is not implemented. Andrew requested detailed questions before implementation. Answers may come in batches; “please suggest a default” is a valid answer. These choices remain unset until agreed. Existing Discord login, Administrator/owner access, server isolation, and security requirements still apply.
 
+## Confirmed so far
+
+- Reward interactive participation, including sending messages, replying, and receiving reactions on a member's messages.
+- Giving a reaction must not earn XP for the person giving it; Andrew wants to avoid rewarding reaction spam.
+- Staff need safeguards and the ability to disable XP earning in selected channels.
+- “Other interactive activity” remains to be defined. Voice participation, forum discussions, and event attendance have not yet been individually confirmed.
+
+The next questions cover additional activity types, whether replies get a bonus, reaction abuse/removal rules, and whether channels use an exclusion list or explicit enablement. Proposed safeguards—ignoring self/bot reactions, one reaction award per reacting person per message, no extra award for removal/re-addition, and configurable caps—are suggestions awaiting feedback. XP values, progression, role rewards, privacy/retention, and administrator controls still need answers. No leveling code has been added.
+
 ## First round: core behavior
 
 1. Should members earn XP from text messages, time in voice channels, both, or another activity?

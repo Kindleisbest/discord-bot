@@ -2,7 +2,7 @@
 
 Requested by Andrew, 2026-09-08. Work through the stages in order, save completed work to GitHub, and keep this file current. Current usage rule (updated by Andrew on 2026-09-11): stop feature work when either the five-hour or weekly allowance is exhausted. Credits may be used only to finish saving work, then stop. Do not spend credits on more development. Do not redeem banked reset credits unless needed and explicitly authorized. This supersedes the earlier 5% stopping threshold recorded below.
 
-**Latest resume point: 2026-09-12, Instagram posting implemented and locally verified.** See the final milestone below; earlier checkpoint entries are history. The leveling questionnaire is prepared in docs/LEVELING_QUESTIONNAIRE.md; obtain answers before implementation. Live Discord/Pi deployment and the final PDF remain later.
+**Latest resume point: Instagram posting implemented and locally verified; leveling requirements in progress.** See the final milestone below; earlier checkpoint entries are history. Initial leveling answers are recorded in docs/LEVELING_QUESTIONNAIRE.md; obtain the remaining answers before implementation. Live Discord/Pi deployment and the final PDF remain later.
 
 ## Confirmed requirements
 
@@ -114,3 +114,9 @@ Validation: **249 automated tests**, both typechecks, and production build pass.
 NEXT: ask Andrew the detailed leveling questionnaire before implementing it; the owner-only Pi Party remains planned only. Audit collection/views/exports stay unimplemented on feature/message-audit and require explicit approval before release. Deployment hardening, stable free address/Cloudflare decision, real Discord/Pi tests, backups/restoration, final accessibility validation, and the illustrated installation PDF remain outstanding. Save all stage changes to GitHub main with a verified non-force update; keep the audit branch unchanged and stop the isolated preview before ending work.
 
 The isolated preview is now stopped. An additional browser check passed read-only Instagram settings/history with editing disabled for a view-only website grant. The detailed leveling questionnaire is prepared in docs/LEVELING_QUESTIONNAIRE.md; start with the core behavior and follow up on the remaining parameters. No leveling choices or implementation are assumed from silence.
+
+## Leveling requirements — first answer
+
+Andrew's latest usage report is **97% remaining**; the live allowance tool remains unavailable. Keep work in small checkpoints and reserve credits for finishing saves.
+
+Confirmed: XP for interactive participation including messages, replies, and received reactions; no XP for giving reactions; staff can disable earning in selected channels and need safeguards. Additional activity types, reply bonuses, reaction removal/abuse rules, and channel inclusion/exclusion behavior are the next questions. Record answers in docs/LEVELING_QUESTIONNAIRE.md. Formula, reward, privacy, retention, and remaining administration requirements are still pending; do not implement leveling yet. This checkpoint changes documentation only, so the previous 249-test result remains the last application validation; no new test run is needed.
