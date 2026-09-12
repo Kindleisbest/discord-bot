@@ -24,7 +24,8 @@ export function createInstagramSettingsTransport(client:Client):InstagramSetting
         if(!channel || channel.guildId!==guildId || ![ChannelType.GuildText,ChannelType.GuildAnnouncement].includes(channel.type))continue;
         const permissions=channel.permissionsFor(bot);
         if(!permissions?.has(PermissionFlagsBits.ViewChannel))continue;
-        const item={id:channel.id,name:channel.name};result.sourceChannels.push(item);
+        const item={id:channel.id,name:channel.name};
+        if(permissions.has(PermissionFlagsBits.ReadMessageHistory))result.sourceChannels.push(item);
         if(permissions.has(sendPermissions))result.destinationChannels.push(item);
       }
       if(!client.isReady() || client.user?.id!==botId)throw Error('offline');

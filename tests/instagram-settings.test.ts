@@ -10,6 +10,7 @@ import {InstagramError,type InstagramSettingsInput} from '../shared/instagram.js
 import {buildApp} from '../server/app.js';
 import {readConfig} from '../server/config.js';
 import type {DiscordApi} from '../server/discord.js';
+import {BotSendError} from '../server/bot/types.js';
 const ga='11111111111111111',gb='22222222222222222',user='33333333333333333',role='44444444444444444',source='55555555555555555',destination='66666666666666666';
 const input=(patch:Partial<InstagramSettingsInput>={}):InstagramSettingsInput=>({sourceChannelIds:[source],destinationChannelId:destination,embedTitle:'Community Instagram',embedDescription:'Private custom wording',embedColor:'#aabbcc',expectedRevision:0,...patch});
 function fixture(){
@@ -18,9 +19,9 @@ function fixture(){
   const transport={options:async(_guildId:string)=>({sourceChannels:[{id:source,name:'social-links'}],destinationChannels:[{id:destination,name:'announcements'}]})};
   return {key,vault,base,store,transport,service:new InstagramSettingsService(store,transport)};
 }
-test('settings validate bounds, unique sources, destination separation, and cannot enable posting',()=>{
+test('settings validate bounds, unique sources, destination separation, and complete enabled routes',()=>{
   assert.equal(instagramSettingsSchema.parse(input()).embedColor,'#AABBCC');
-  for(const patch of [{sourceChannelIds:[source,source]},{sourceChannelIds:Array(26).fill(source)},{destinationChannelId:source},{embedTitle:' '},{embedTitle:'a'.repeat(101)},{embedDescription:'a'.repeat(2001)},{embedColor:'red'},{sourceChannelIds:['bad']},{expectedRevision:-1},{expectedRevision:0.5},{enabled:true}])assert.throws(()=>instagramSettingsSchema.parse({...input(),...patch}));
+  for(const patch of [{sourceChannelIds:[source,source]},{sourceChannelIds:Array(26).fill(source)},{destinationChannelId:source},{embedTitle:' '},{embedTitle:'a'.repeat(101)},{embedDescription:'a'.repeat(2001)},{embedColor:'red'},{sourceChannelIds:['bad']},{expectedRevision:-1},{expectedRevision:0.5},{enabled:true,sourceChannelIds:[]}])assert.throws(()=>instagramSettingsSchema.parse({...input(),...patch}));
   instagramSettingsSchema.parse(input({sourceChannelIds:[],destinationChannelId:null,embedDescription:''}));
 });
 test('settings are isolated, encrypted, authenticated, persist as configuration, and remain disabled',()=>{
@@ -45,18 +46,19 @@ test('stale settings and failed activity writes cannot replace a saved configura
     assert.equal(f.store.get(ga).embedTitle,input().embedTitle);assert.equal(f.store.get(ga).revision,1);
   }finally{f.base.close();}
 });
-test('every save rechecks selected source and destination access and preserves data on failures',async()=>{
+test('enabled saves verify setup while disabling remains possible offline',async()=>{
   const f=fixture();try{
-    await f.service.save(ga,user,input());
-    f.transport.options=async()=>({sourceChannels:[],destinationChannels:[]});
-    await assert.rejects(f.service.save(ga,user,input({expectedRevision:1})),InstagramError);
-    await assert.rejects(f.service.save(ga,user,input({sourceChannelIds:[],expectedRevision:1})),InstagramError);
+    let checks=0;const posting={checkSetup:async()=>{checks++;},send:async()=>({id:destination})};
+    const service=new InstagramSettingsService(f.store,f.transport,true,posting);
+    await service.save(ga,user,input({enabled:true}));assert.equal(checks,1);assert.equal(f.store.get(ga).enabled,true);
+    posting.checkSetup=async()=>{throw new BotSendError('Unavailable route',false);};
+    await assert.rejects(service.save(ga,user,input({enabled:true,expectedRevision:1})),(error:unknown)=>error instanceof InstagramError && error.statusCode===400 && error.message==='Unavailable route');
     f.transport.options=async()=>{throw Error('offline');};
-    await assert.rejects(f.service.save(ga,user,input({expectedRevision:1})));
-    assert.equal(f.store.get(ga).revision,1);
+    await service.save(ga,user,input({enabled:false,expectedRevision:1}));assert.equal(f.store.get(ga).enabled,false);
+    await assert.rejects(f.service.save(ga,user,input({enabled:true,expectedRevision:2})),InstagramError);
   }finally{f.base.close();}
 });
-test('settings HTTP routes enforce login, current Administrator and both grants, CSRF, and no enable option',async()=>{
+test('settings HTTP routes enforce login, current Administrator and both grants, CSRF, and the host opt-in',async()=>{
   const f=fixture();let permission='8',ownerId='77777777777777777';const profile={id:user,username:'Fixture',avatar:null};
   const discord:DiscordApi={authorizeUrl:()=>'',exchange:async()=>({accessToken:'fixture',expiresIn:3600}),currentUser:async()=>profile,userGuilds:async()=>[],revoke:async()=>{},guildContext:async guildId=>({guild:{id:guildId,name:'Fixture',icon:null,ownerId},roles:[{id:guildId,name:'everyone',permissions:'0',position:0},{id:role,name:'Administrator',permissions:permission,position:10}],memberRoleIds:[role]})};
   const config=readConfig({NODE_ENV:'test',DISCORD_CLIENT_ID:ga,DISCORD_CLIENT_SECRET:'fixture',DISCORD_BOT_TOKEN:'fixture',DATA_ENCRYPTION_KEY:f.key});
@@ -79,7 +81,7 @@ test('settings HTTP routes enforce login, current Administrator and both grants,
 function discordFixture(){
   const calls:string[]=[],cache=new Collection([['stale',{id:'stale'}]]);let canSend=true,ready=true;
   const guild={id:ga,roles:{cache,fetch:async()=>{calls.push('roles');return new Collection();}},members:{fetchMe:async()=>{calls.push('bot');return {id:user,guild:{id:ga}};}},channels:{fetch:async()=>{calls.push('channels');return new Collection([
-    [source,{id:source,guildId:ga,name:'source',type:0,permissionsFor:()=>({has:(p:unknown)=>p===PermissionFlagsBits.ViewChannel})}],
+    [source,{id:source,guildId:ga,name:'source',type:0,permissionsFor:()=>({has:(p:unknown)=>p===PermissionFlagsBits.ViewChannel || p===PermissionFlagsBits.ReadMessageHistory})}],
     [destination,{id:destination,guildId:ga,name:'destination',type:5,permissionsFor:()=>({has:(p:unknown)=>p===PermissionFlagsBits.ViewChannel || canSend})}],
     [role,{id:role,guildId:gb,name:'foreign',type:0,permissionsFor:()=>({has:()=>true})}],
   ]);}}};

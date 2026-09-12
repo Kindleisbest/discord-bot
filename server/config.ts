@@ -10,6 +10,7 @@ const schema = z.object({
   DISCORD_CLIENT_SECRET: z.string().default(''),
   DISCORD_BOT_TOKEN: z.string().default(''),
   DATA_ENCRYPTION_KEY: z.string().default(''),
+  INSTAGRAM_LINKS_ENABLED:z.enum(['true','false']).default('false').transform(value=>value==='true'),
 });
 const supplied = (value: string) => value.length > 0 && !/^(replace|your_|placeholder)/i.test(value);
 export function readConfig(env: NodeJS.ProcessEnv = process.env) {

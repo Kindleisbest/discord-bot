@@ -21,6 +21,9 @@ import { attachTutorialGateway } from './tutorial/gateway.js';
 import {InstagramSettingsStore,InstagramSettingsService} from './instagram/settings.js';
 import {createInstagramSettingsTransport} from './instagram/discord.js';
 import {InstagramDeliveryStore} from './instagram/deliveries.js';
+import {createInstagramPostingTransport} from './instagram/posting.js';
+import {InstagramPostingService} from './instagram/service.js';
+import {attachInstagramGateway} from './instagram/gateway.js';
 
 process.umask(0o077);
 if (existsSync('.env')) loadEnvFile('.env');
@@ -45,15 +48,20 @@ const inboxGateway=attachInboxGateway(bot.client,inbox);
 const events=new EventService(eventStore,createEventTransport(bot.client),(...args)=>store.addActivity(...args));
 const tutorials=new TutorialService(tutorialStore,createTutorialTransport(bot.client));
 const tutorialGateway=attachTutorialGateway(bot.client,tutorials);
-const instagram=new InstagramSettingsService(instagramStore,createInstagramSettingsTransport(bot.client));
-const app=await buildApp(config,store,new DiscordHttpApi(config),bot,inbox,events,tutorials,instagram);
+const instagramTransport=createInstagramPostingTransport(bot.client);
+const instagram=new InstagramSettingsService(instagramStore,createInstagramSettingsTransport(bot.client),config.INSTAGRAM_LINKS_ENABLED,instagramTransport);
+const instagramPosting=new InstagramPostingService(instagramStore,instagramDeliveries,instagramTransport,config.INSTAGRAM_LINKS_ENABLED,(...args)=>store.addActivity(...args));
+const instagramGateway=attachInstagramGateway(bot.client,instagramPosting,config.INSTAGRAM_LINKS_ENABLED);
+const app=await buildApp(config,store,new DiscordHttpApi(config),bot,inbox,events,tutorials,instagram,instagramDeliveries);
 const cleanup=setInterval(()=>{try {instagramDeliveries.prune();eventStore.prune();inboxStore.prune();store.prune();} catch {console.error('Scheduled data cleanup failed. Check storage and disk space.');}},60*60_000);
 cleanup.unref();
 let stopping=false;
 async function shutdown() {
   if (stopping) return; stopping=true;
   clearInterval(cleanup);
-  await app.close(); tutorialGateway.stop(); inboxGateway.stop(); await bot.stop(); store.close();
+  instagramGateway.stop();
+  const instagramStopped=instagramPosting.stop();
+  await app.close(); tutorialGateway.stop(); inboxGateway.stop(); await instagramStopped; await bot.stop(); store.close();
 }
 process.once('SIGINT',()=>void shutdown()); process.once('SIGTERM',()=>void shutdown());
 await app.listen({host:config.HOST,port:config.PORT});

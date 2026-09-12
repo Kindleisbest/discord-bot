@@ -2,6 +2,8 @@
 
 Requested by Andrew, 2026-09-08. Work through the stages in order, save completed work to GitHub, and keep this file current. Current usage rule (updated by Andrew on 2026-09-11): stop feature work when either the five-hour or weekly allowance is exhausted. Credits may be used only to finish saving work, then stop. Do not spend credits on more development. Do not redeem banked reset credits unless needed and explicitly authorized. This supersedes the earlier 5% stopping threshold recorded below.
 
+**Latest resume point: 2026-09-12, Instagram posting implemented and locally verified.** See the final milestone below; earlier checkpoint entries are history. The leveling questionnaire is prepared in docs/LEVELING_QUESTIONNAIRE.md; obtain answers before implementation. Live Discord/Pi deployment and the final PDF remain later.
+
 ## Confirmed requirements
 
 - Raspberry Pi **3 B+**, 1 GB RAM; target 64-bit Raspberry Pi OS Lite. Build frontend assets away from the Pi when possible.
@@ -28,7 +30,7 @@ Requested by Andrew, 2026-09-08. Work through the stages in order, save complete
 2. [x] Bot gateway, slash /help, /dashboard and /ping, latest activity, reviewed website composer. /contact belongs to the staff inbox stage.
 3. [ ] Staff inbox and message audit. Staff DM inbox/replies/routing/90-day purge are complete; server-channel audit and exports remain.
 4. [x] Events with graphics and announcements, configurable member tutorials, and administrator onboarding are implemented and locally tested. Live Discord verification remains.
-5. [ ] Instagram links shared in Discord: configurable destination and custom embed.
+5. [x] Instagram links shared in Discord: configurable destination/custom embed, explicit activation, safe delivery, and website history. Local tests pass; live Discord verification remains.
 6. [ ] Ask detailed leveling questions; implement only after answers.
 7. [ ] Pi deployment hardening, free-address decision, backup/restore, end-to-end and accessibility validation.
 8. [ ] Final detailed installation PDF with images and official video links, release checklist.
@@ -98,3 +100,17 @@ Andrew clarified that 23% means remaining. Earlier 90%/66% entries labeled used 
 Implemented durable encrypted Instagram delivery reservations, per-event duplicate protection retaining the original destination, immutable terminal states, pending-to-uncertain restart recovery, exact 90-day expiry, per-server/global capacity limits, and source-snowflake age checks against replay after pruning. Main initializes/recover/prunes/removes this storage. No gateway or sender uses it yet and posting remains unavailable. All 223 automated tests, both typechecks, and production build pass. No frontend behavior changed.
 
 NEXT: implement enabled-setting migration with explicit activation, incoming gateway checks and bounded rate limits, audience policy and fresh authorization, actual Discord embed transport with safe uncertain-result handling, and website delivery status. Do not silently activate saved configurations. Audit stays separate, leveling requires the questionnaire, and the final installation PDF remains deferred. Save and verify this checkpoint, then pause before a larger stage.
+
+## Instagram posting milestone — 2026-09-12
+
+Andrew confirmed both five-hour and weekly allowances were **100% remaining** on resume. Live usage reporting remains unavailable; do not invent a current percentage. Credits remain restricted to finishing saves. No reset credit was redeemed by the assistant.
+
+Stage 5 is connected end to end: explicit host environment opt-in and separate server enablement; legacy configurations remain disabled; selected-channel gateway intake; fresh source-message, membership, channel, and conservative audience checks; custom canonical-link embeds with disabled mentions; durable reservation before POST; no automatic replay after any failure or uncertain result; encrypted 90-day outgoing history; and immediate cancellation of unfinished preflight authorization when stopping. The host switch alone cannot activate saved server setups.
+
+The website distinguishes saved activation from an unsaved switch, shows runtime availability, allows disabling offline while preserving channel IDs, and loads settings/channel choices/history independently. Read requires instagram.manage; any save also requires messages.send. Channel-permission errors are distinct from revision conflicts. History is read-only and refresh preserves drafts. Limits bound events, concurrent work, and stored records for the Pi; see docs/INSTAGRAM_CHECKPOINT.md. Optional message intents allow Discord's library to receive guild events; configured sources are checked before reading event content. Original server-chat bodies are not archived, and no history lists or Instagram media are fetched.
+
+Validation: **249 automated tests**, both typechecks, and production build pass. Browser checks with simulated Discord passed explicit enable/saved status, input validation, source/destination separation, unsaved navigation, draft-preserving history refresh, sent/failed/uncertain records, route errors versus revision conflicts, deliberate reload, offline disabling with saved IDs, escaped text, keyboard navigation, and mobile 390px without horizontal overflow. Desktop/mobile screenshots were visually inspected. Saved screenshot: docs/design/instagram-posting-verified.png. No credentials, live messages, or real member content were used.
+
+NEXT: ask Andrew the detailed leveling questionnaire before implementing it; the owner-only Pi Party remains planned only. Audit collection/views/exports stay unimplemented on feature/message-audit and require explicit approval before release. Deployment hardening, stable free address/Cloudflare decision, real Discord/Pi tests, backups/restoration, final accessibility validation, and the illustrated installation PDF remain outstanding. Save all stage changes to GitHub main with a verified non-force update; keep the audit branch unchanged and stop the isolated preview before ending work.
+
+The isolated preview is now stopped. An additional browser check passed read-only Instagram settings/history with editing disabled for a view-only website grant. The detailed leveling questionnaire is prepared in docs/LEVELING_QUESTIONNAIRE.md; start with the core behavior and follow up on the remaining parameters. No leveling choices or implementation are assumed from silence.

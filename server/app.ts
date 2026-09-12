@@ -25,10 +25,11 @@ import type { TutorialService } from './tutorial/service.js';
 import { tutorialInputSchema } from './tutorial/validation.js';
 import {InstagramError} from '../shared/instagram.js';
 import {instagramSettingsSchema,type InstagramSettingsService} from './instagram/settings.js';
+import type {InstagramDeliveryStore} from './instagram/deliveries.js';
 
 class HttpError extends Error { constructor(readonly statusCode:number,message:string) { super(message); } }
 const snowflake = z.string().regex(/^\d{17,20}$/);
-export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?:BotService,inbox?:InboxService,events?:EventService,tutorials?:TutorialService,instagram?:InstagramSettingsService) {
+export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?:BotService,inbox?:InboxService,events?:EventService,tutorials?:TutorialService,instagram?:InstagramSettingsService,instagramDeliveries?:InstagramDeliveryStore) {
   const app = Fastify({logger:false,trustProxy:false,bodyLimit:16_384,requestTimeout:30_000});
   const sessionCookie = config.production ? '__Host-dm_session' : 'dm_session';
   const stateCookie = config.production ? '__Host-dm_oauth' : 'dm_oauth';
@@ -234,7 +235,16 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?
   function tutorialService() {if(!tutorials)throw new HttpError(503,'Member tutorials are not available.');return tutorials;}
   function instagramService(){if(!instagram)throw new HttpError(503,'Instagram settings are not available.');return instagram;}
   app.get('/api/guilds/:guildId/instagram',async request=>{
-    const c=await context(request,'instagram.manage');return {settings:instagramService().store.get(c.guild.id)};
+    const c=await context(request,'instagram.manage');return {settings:instagramService().store.get(c.guild.id),
+      runtime:{available:instagramService().runtimeAvailable,botReady:bot?.status().state==='ready'}};
+  });
+  app.get('/api/guilds/:guildId/instagram/deliveries',async request=>{
+    const c=await context(request,'instagram.manage');
+    if(!instagramDeliveries)throw new HttpError(503,'Instagram delivery history is unavailable.');
+    return {deliveries:instagramDeliveries.list(c.guild.id).map(({jobId,payload,createdAt,status,messageId})=>({
+      jobId,sourceChannelId:payload.sourceChannelId,destinationChannelId:payload.destinationChannelId,sourceMessageId:payload.sourceMessageId,
+      url:payload.url,embedTitle:payload.embedTitle,createdAt,status,messageId,
+    }))};
   });
   app.get('/api/guilds/:guildId/instagram/options',async request=>{
     const c=await context(request,'instagram.manage');return {options:await instagramService().transport.options(c.guild.id)};

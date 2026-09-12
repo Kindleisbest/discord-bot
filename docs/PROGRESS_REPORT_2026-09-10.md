@@ -1,7 +1,7 @@
 # Discord Bot — Progress Report
-**Updated 11 September 2026**
+**Updated 12 September 2026**
 
-The secure website foundation, channel messaging, private staff inbox, event creation, and member tutorials are implemented. The project is still in development and has not been validated with a live Discord server or on the Raspberry Pi.
+The secure website foundation, channel messaging, private staff inbox, event creation, member tutorials, and opt-in Instagram announcements are implemented. The project is still in development and has not been validated with a live Discord server or on the Raspberry Pi.
 
 ## Feature status
 
@@ -18,7 +18,7 @@ The secure website foundation, channel messaging, private staff inbox, event cre
 | Server chat audit and audit exports | Separate development branch | feature/message-audit exists locally and on GitHub. Collection, audit views/storage, and exports have not been implemented. |
 | Events and graphics | Implemented; local tests pass | External, voice, and Stage event creation with announcement, optional graphic, separate results, and failed-announcement recovery. Live Discord verification remains. |
 | Member /tutorial | Implemented; local tests pass | Encrypted draft/published channel instructions, private navigation, live visibility checks, clear/unpublish, and protection against conflicting edits. |
-| Instagram announcements | Setup implemented; posting remains | URL recognition and encrypted source/destination/embed settings are available. Gateway delivery and explicit activation remain. |
+| Instagram announcements | Implemented; local tests pass | Explicit host/server enablement, selected sources and destination, custom link embeds, current permissions and audience checks, duplicate protection, and read-only 90-day outgoing history. |
 | Leveling system | Awaiting requirements | Detailed questions will be asked before implementation. |
 | Raspberry Pi deployment | Planned | Pi 3 B+ is the target; installation, performance, service setup, backups, restoration, and device hardening remain. |
 | Free address and Cloudflare | Unresolved | A secure, no-subscription deployment approach still needs selecting and verification. No domain has been connected. |
@@ -26,9 +26,10 @@ The secure website foundation, channel messaging, private staff inbox, event cre
 
 ## Validation completed
 
-- The latest implementation passed **223 automated security and behavior tests**, both application type checks, and the production build.
+- The latest implementation passed **249 automated security and behavior tests**, both application type checks, and the production build.
 - Local browser checks passed simulated sign-in, staff inbox enablement, reading, reviewing and sending a reply, closing a conversation, retained history, and footer navigation.
 - Mobile testing at 390px width found no horizontal overflow; the tested inbox flow produced no browser errors.
+- Instagram browser checks passed enablement, saved versus draft status, safe source/destination selection, delivery history, conflicting edits, disabling during a simulated Discord outage, retained channel IDs, keyboard navigation, and mobile layout. Desktop/mobile screenshots were visually inspected.
 - Tests used simulated Discord responses. No real credentials or member messages were used, and no live Discord messages were sent.
 
 “Implemented” describes code and local verification, not production readiness. Live Discord authorization, command behavior and delivery, Pi resource use, public HTTPS access, backups, and recovery still need testing.
@@ -37,13 +38,13 @@ The secure website foundation, channel messaging, private staff inbox, event cre
 
 Implemented protections include encrypted sensitive fields, expiring server sessions, fresh Discord access checks, server isolation, request validation, CSRF/origin checks, security headers, rate limits, and safe handling of uncertain sends. Full device/deployment hardening remains unfinished.
 
-The private staff inbox and administration activity stay on main. Reading and archiving server chat belongs on feature/message-audit and will not be merged or released until Andrew explicitly approves it. A branch separates development; it does not itself implement the audit system.
+The private staff inbox and administration activity stay on main. Server-chat archiving and exports belong on feature/message-audit and will not be merged or released until Andrew explicitly approves it. Optional Instagram processing examines selected new messages for links without archiving original message bodies. A branch separates development; it does not itself implement the audit system.
 
 Only credential placeholders are supplied. The GitHub repository is public; real secrets, databases, backups, exports, and temporary test harnesses must stay out of it.
 
 ## Next work
 
-Continue the core bot on main with Instagram-link announcements. Develop the server chat audit separately when requested. Ask the leveling questionnaire before that feature, then complete deployment and release validation before writing the final installation PDF.
+Ask the detailed leveling questionnaire before implementing that feature. Develop the server chat audit separately when requested. Complete deployment and release validation before writing the final installation PDF. The owner-only Pi Party Easter egg remains planned, with no implementation yet.
 
 ## Project records
 
@@ -51,9 +52,9 @@ Continue the core bot on main with Instagram-link announcements. Develop the ser
 - [Audit branch](https://github.com/Kindleisbest/discord-bot/tree/feature/message-audit)
 - [Detailed checkpoint](../PROJECT_PLAN.md)
 - [Staff inbox screenshot — simulated data](design/inbox-verified.png)
+- [Member tutorial screenshot — simulated data](design/tutorial-verified.png)
+- [Instagram posting and history screenshot — simulated data](design/instagram-posting-verified.png)
+- [Instagram setup, limits, and remaining live verification](INSTAGRAM_CHECKPOINT.md)
+- [Leveling requirements questionnaire](LEVELING_QUESTIONNAIRE.md)
 
-Latest checkpoint: all 201 tests, typechecks, and build passed. Tutorial browser checks passed draft/publish, clear, conflicting edits, unsaved-change warnings, keyboard navigation, escaped preview, and mobile layout. Screenshot: [member tutorial — simulated data](design/tutorial-verified.png).
-
-Instagram setup checkpoint: 216 tests, typechecks and build pass. The website saves draft configuration only; it does not yet send announcements.
-
-Delivery-record checkpoint: all 223 tests and build pass. Encrypted reservations, duplicate-event protection, restart recovery and retention are implemented internally; automatic Instagram posting remains unavailable.
+Instagram remains disabled until both the host and an authorized server administrator explicitly enable it. Posts use canonical links and custom text; Instagram media and captions are not fetched. Delivery can be skipped for permission, workload, rate, or capacity limits, and uncertain sends are never automatically replayed.

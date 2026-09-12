@@ -46,7 +46,8 @@ export function classifySendError(error: unknown): BotSendError {
 
 export function createBot(config: Config, hooks: Hooks): BotService & { client: Client; start(): Promise<void> } {
   const client: Client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages],
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages,
+      ...(config.INSTAGRAM_LINKS_ENABLED ? [GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent] : [])],
     partials: [Partials.Channel],
     allowedMentions: { parse: [], repliedUser: false },
     // Guild, channel, role and overwrite caches must remain intact for Discord

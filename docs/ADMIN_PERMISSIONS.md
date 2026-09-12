@@ -1,5 +1,5 @@
 # Administrator permissions guide
-Updated 11 September 2026 for the current development version.
+Updated 12 September 2026 for the current development version.
 
 ## Entering the website
 
@@ -23,8 +23,8 @@ These website profiles limit access to this dashboard. Discord Administrator sti
 | Create an event with its announcement | Manage events **and** Send channel messages |
 | Send a confirmed event's missing announcement | Manage events **and** Send channel messages |
 | Write, publish, unpublish, or clear channel instructions | Edit member tutorial |
-| View Instagram setup | Manage Instagram |
-| Save Instagram channels and embed setup (posting unavailable) | Manage Instagram **and** Send channel messages |
+| View Instagram settings and read-only delivery history | Manage Instagram |
+| Save Instagram settings, including enabling or disabling posting | Manage Instagram **and** Send channel messages |
 | Change eligible lower roles' website access | Manage lower roles, subject to the rules below |
 | Skip or reset your administrator walkthrough | Any signed-in administrator; this only changes your own progress |
 
@@ -50,6 +50,8 @@ Example website profiles for accounts that already meet the Administrator requir
 | Send channel announcements | Send channel messages |
 | Organize events and announcements | Manage events + Send channel messages |
 | Maintain member onboarding instructions | Edit member tutorial |
+| Review Instagram posting and delivery status | Manage Instagram |
+| Configure and enable Instagram link posting | Manage Instagram + Send channel messages |
 | Delegate selected access | Manage lower roles + the specific capabilities they may delegate |
 
 These are examples, not automatically created roles.
@@ -73,6 +75,7 @@ Your website grant authorizes an action through the dashboard. The bot must also
 - Stage events: Create Events, View Channel, Manage Channels, Mute Members, and Move Members in the selected Stage channel.
 - Member tutorials: the bot and member must both have View Channel for each published step. Members use `/tutorial` without website access.
 - Staff DMs: the inbox must be enabled and the member must still belong to the selected server; Discord must allow delivery of the direct message.
+- Instagram link posting: the bot needs View Channel and Read Message History in every source, plus View Channel, Send Messages, and Embed Links in the destination. Only text/announcement channels are supported. Source and destination must have matching View Channel permission overrides, excluding the bot's own member override. The original author must still belong to the server and be able to view both channels.
 
 The application refreshes access before server actions. A stale open browser tab does not preserve access after the Administrator permission or server membership is removed.
 
@@ -82,8 +85,18 @@ Confirm the selected server, your current Discord Administrator permission, and 
 
 If an event exists but its announcement definitely failed, fix the bot permission and use **Send missing announcement**. If an event or message result is unconfirmed, check Discord before creating another request. Status checks do not resend anything.
 
+## Enabling and reviewing Instagram posting
+
+Instagram posting requires two explicit choices. The host must enable **Message Content Intent** in the application's Discord Developer Portal **Bot** settings, set `INSTAGRAM_LINKS_ENABLED=true`, and restart the service. Then an authorized administrator must select source channels, a different destination, and an embed title on the server's **Instagram** page, check **Enable automatic Instagram link posting**, and save. New and previously saved setups default to disabled.
+
+The posting status reflects saved settings and the bot's connection; changing the checkbox takes effect only after saving. You can disable posting and save while the bot is offline or saved channels are unavailable. Channel IDs remain visible until you explicitly remove or replace them. Disabling stops new work but does not recall a message already submitted to Discord.
+
+If activation fails, check the host setup, bot connection, source and destination permissions, and their View Channel overrides. The audience check is deliberately conservative and may reject channels that appear to have the same members. An enabled setting cannot bypass a later permission change. The bot fetches the specific new source message before posting; a deleted message, changed link, or author who loses access can prevent delivery.
+
+**Delivery history** shows the latest 100 outgoing records within 90 days. **Refresh status** only reads history. Sent records link to the confirmed Discord message; pending, failed, and uncertain records have no retry action. Uncertain means delivery could not be confirmed. Busy work, rate limits, and full storage can skip messages before a delivery record is created, so this history is not a list of every shared link. Original channel message text is not archived, and the bot does not fetch Instagram media or captions.
+
 ## Features still in development
 
-Read message audit and Export message audit are reserved for the separate feature/message-audit branch. Granting them does not start server-chat collection on main. Manage Instagram now opens the setup editor; automatic posting is still unavailable.
+Read message audit and Export message audit are reserved for the separate feature/message-audit branch. Granting them does not start server-chat archiving on main. Instagram posting is implemented separately and requires the explicit host and server activation described above; live Discord and Raspberry Pi verification remain pending.
 
 See [setup notes](SETUP.md), [security details](../SECURITY.md), and the [project checkpoint](../PROJECT_PLAN.md). The final illustrated Raspberry Pi installation PDF will include the completed release's permission setup.

@@ -2,6 +2,8 @@ import {z} from 'zod';
 import type {DatabaseSync} from 'node:sqlite';
 import type {Vault} from '../crypto.js';
 import {InstagramError,type InstagramSettings,type InstagramSettingsInput,type InstagramOptions} from '../../shared/instagram.js';
+import type {InstagramPostingTransport} from './types.js';
+import {BotSendError} from '../bot/types.js';
 
 export const instagramIdSchema=z.string().regex(/^\d{17,20}$/);
 const contentSchema=z.object({
@@ -10,7 +12,9 @@ const contentSchema=z.object({
   embedTitle:z.string().trim().min(1).max(100),
   embedDescription:z.string().trim().max(2000),
   embedColor:z.string().regex(/^#[0-9a-fA-F]{6}$/).transform(color=>color.toUpperCase()),
-}).strict().refine(value=>!value.destinationChannelId || !value.sourceChannelIds.includes(value.destinationChannelId));
+  enabled:z.boolean().default(false),
+}).strict().refine(value=>!value.destinationChannelId || !value.sourceChannelIds.includes(value.destinationChannelId))
+  .refine(value=>!value.enabled || (value.sourceChannelIds.length>0 && !!value.destinationChannelId));
 export const instagramSettingsSchema=contentSchema.safeExtend({expectedRevision:z.number().int().min(0).max(Number.MAX_SAFE_INTEGER-1)});
 type Row={guild_id:string;payload:string;revision:number;updated_at:number};
 type ActivityHook=(guildId:string,actorId:string,action:string,targetId:string|null)=>void;
@@ -24,7 +28,7 @@ export class InstagramSettingsStore {
   get(guildId:string):InstagramSettings {
     const row=this.db.prepare('SELECT * FROM instagram_settings WHERE guild_id=?').get(guildId) as Row|undefined;
     if(!row)return defaults();
-    try{return {...contentSchema.parse(this.vault.open(row.payload,context(row))),enabled:false,revision:row.revision,updatedAt:row.updated_at};}
+    try{return {...contentSchema.parse(this.vault.open(row.payload,context(row))),revision:row.revision,updatedAt:row.updated_at};}
     catch{throw new InstagramError(500,'These Instagram settings could not be read securely.');}
   }
   save(guildId:string,actorId:string,input:InstagramSettingsInput):InstagramSettings {
@@ -37,7 +41,7 @@ export class InstagramSettingsStore {
         .run(guildId,this.vault.seal(content,context(row)),row.revision,row.updated_at);
       this.activity(guildId,actorId,'instagram.settings_saved',content.destinationChannelId);
       this.db.exec('COMMIT');
-      return {...content,enabled:false,revision:row.revision,updatedAt:row.updated_at};
+      return {...content,revision:row.revision,updatedAt:row.updated_at};
     }catch(error){this.db.exec('ROLLBACK');throw error;}
   }
   removeGuild(guildId:string){this.db.prepare('DELETE FROM instagram_settings WHERE guild_id=?').run(guildId);}
@@ -45,14 +49,20 @@ export class InstagramSettingsStore {
 
 export interface InstagramSettingsTransport {options(guildId:string):Promise<InstagramOptions>}
 export class InstagramSettingsService {
-  constructor(readonly store:InstagramSettingsStore,readonly transport:InstagramSettingsTransport){}
+  constructor(readonly store:InstagramSettingsStore,readonly transport:InstagramSettingsTransport,
+    readonly runtimeAvailable=false,private readonly posting?:InstagramPostingTransport){}
   async save(guildId:string,actorId:string,input:InstagramSettingsInput){
     instagramIdSchema.parse(guildId);instagramIdSchema.parse(actorId);
     const validated=instagramSettingsSchema.parse(input);
-    const options=await this.transport.options(guildId);
-    const sourceIds=new Set(options.sourceChannels.map(channel=>channel.id));
-    if(validated.sourceChannelIds.some(id=>!sourceIds.has(id)))throw new InstagramError(400,'A selected source channel is unavailable. Reload channels and review your selection.');
-    if(validated.destinationChannelId && !options.destinationChannels.some(channel=>channel.id===validated.destinationChannelId))throw new InstagramError(400,'The destination is unavailable or the bot cannot send embeds there.');
+    // Disabling must remain possible while Discord is offline or a channel is deleted.
+    if(validated.enabled){
+      if(!this.runtimeAvailable || !this.posting)throw new InstagramError(400,'The host has not enabled Instagram link processing.');
+      try{await this.posting.checkSetup(guildId,{...validated,revision:validated.expectedRevision,updatedAt:null});}
+      catch(error){
+        if(error instanceof BotSendError)throw new InstagramError(400,error.message);
+        throw error;
+      }
+    }
     return this.store.save(guildId,actorId,validated);
   }
 }

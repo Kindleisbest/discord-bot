@@ -22,7 +22,7 @@ export type InstagramDelivery={jobId:string;payload:InstagramDeliveryPayload;cre
 type Row={guild_id:string;job_id:string;payload:string;created_at:number;status:InstagramDeliveryStatus;message_id:string|null};
 function context(guildId:string,jobId:string,createdAt:number){return `instagram-delivery:v1:${JSON.stringify([guildId,jobId,createdAt])}`;}
 
-/** Durable reservations only. No caller is connected to the gateway or sender yet. */
+/** Durable outgoing reservations keep gateway replays from creating a second POST. */
 export class InstagramDeliveryStore {
   constructor(private readonly db:DatabaseSync,private readonly vault:Vault){
     db.exec(`CREATE TABLE IF NOT EXISTS instagram_deliveries(
