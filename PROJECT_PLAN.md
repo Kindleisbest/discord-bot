@@ -78,3 +78,7 @@ Usage after personal reset: initial 13% five-hour used / 2% weekly used; latest 
 Final tutorial verification: all 201 tests, both typechecks, and production build passed. Usage reached 92% five-hour used (8% remaining), 14% weekly used; finish saving and pause at this milestone to preserve the buffer. Say resume after allowance is available; recheck before the next substantial feature.
 
 Saving checkpoint: five-hour allowance reached 100% used; weekly 16% used. Andrew authorized credits only for completing the save. Finish GitHub verification and stop; do not start Instagram work on credits. No banked reset has been redeemed by the assistant.
+
+## Instagram URL checkpoint — 2026-09-11
+
+Andrew resumed and reported 90% usage, interpreted as 90% used. The live allowance tool is unavailable in this session; do not invent remaining percentages. Completed a small standalone Instagram post/reel URL recognizer with canonical tracking-free links, duplicate handling, strict host/path checks, and bounded message/candidate processing. No gateway, message-reading intent, website configuration, or announcements were activated. See docs/INSTAGRAM_CHECKPOINT.md for the contract and next implementation step. Seven focused tests and both typechecks pass. Save to GitHub and pause here; credits remain authorized only for completing the save.
