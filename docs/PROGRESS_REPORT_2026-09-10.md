@@ -18,7 +18,7 @@ The secure website foundation, channel messaging, private staff inbox, event cre
 | Server chat audit and audit exports | Separate development branch | feature/message-audit exists locally and on GitHub. Collection, audit views/storage, and exports have not been implemented. |
 | Events and graphics | Implemented; local tests pass | External, voice, and Stage event creation with announcement, optional graphic, separate results, and failed-announcement recovery. Live Discord verification remains. |
 | Member /tutorial | Implemented; local tests pass | Encrypted draft/published channel instructions, private navigation, live visibility checks, clear/unpublish, and protection against conflicting edits. |
-| Instagram announcements | Planned | Detect an Instagram link shared in Discord and post the configured custom embed. |
+| Instagram announcements | Setup implemented; posting remains | URL recognition and encrypted source/destination/embed settings are available. Gateway delivery and explicit activation remain. |
 | Leveling system | Awaiting requirements | Detailed questions will be asked before implementation. |
 | Raspberry Pi deployment | Planned | Pi 3 B+ is the target; installation, performance, service setup, backups, restoration, and device hardening remain. |
 | Free address and Cloudflare | Unresolved | A secure, no-subscription deployment approach still needs selecting and verification. No domain has been connected. |
@@ -26,7 +26,7 @@ The secure website foundation, channel messaging, private staff inbox, event cre
 
 ## Validation completed
 
-- The latest implementation passed **201 automated security and behavior tests**, both application type checks, and the production build.
+- The latest implementation passed **216 automated security and behavior tests**, both application type checks, and the production build.
 - Local browser checks passed simulated sign-in, staff inbox enablement, reading, reviewing and sending a reply, closing a conversation, retained history, and footer navigation.
 - Mobile testing at 390px width found no horizontal overflow; the tested inbox flow produced no browser errors.
 - Tests used simulated Discord responses. No real credentials or member messages were used, and no live Discord messages were sent.
@@ -53,3 +53,5 @@ Continue the core bot on main with Instagram-link announcements. Develop the ser
 - [Staff inbox screenshot — simulated data](design/inbox-verified.png)
 
 Latest checkpoint: all 201 tests, typechecks, and build passed. Tutorial browser checks passed draft/publish, clear, conflicting edits, unsaved-change warnings, keyboard navigation, escaped preview, and mobile layout. Screenshot: [member tutorial — simulated data](design/tutorial-verified.png).
+
+Instagram setup checkpoint: 216 tests, typechecks and build pass. The website saves draft configuration only; it does not yet send announcements.

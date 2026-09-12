@@ -23,10 +23,12 @@ import { eventDraftSchema } from './events/validation.js';
 import { TutorialError } from '../shared/tutorial.js';
 import type { TutorialService } from './tutorial/service.js';
 import { tutorialInputSchema } from './tutorial/validation.js';
+import {InstagramError} from '../shared/instagram.js';
+import {instagramSettingsSchema,type InstagramSettingsService} from './instagram/settings.js';
 
 class HttpError extends Error { constructor(readonly statusCode:number,message:string) { super(message); } }
 const snowflake = z.string().regex(/^\d{17,20}$/);
-export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?:BotService,inbox?:InboxService,events?:EventService,tutorials?:TutorialService) {
+export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?:BotService,inbox?:InboxService,events?:EventService,tutorials?:TutorialService,instagram?:InstagramSettingsService) {
   const app = Fastify({logger:false,trustProxy:false,bodyLimit:16_384,requestTimeout:30_000});
   const sessionCookie = config.production ? '__Host-dm_session' : 'dm_session';
   const stateCookie = config.production ? '__Host-dm_oauth' : 'dm_oauth';
@@ -64,6 +66,7 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?
     }
   });
   app.setErrorHandler((error,request,reply)=>{
+    if(error instanceof InstagramError)return reply.code(error.statusCode).send({error:error.message});
     if(error instanceof TutorialError)return reply.code(error.statusCode).send({error:error.message});
     if(error instanceof BotSendError && !error.uncertain)return reply.code(409).send({error:error.message});
     if(error instanceof EventError)return reply.code(error.statusCode).send({error:error.message});
@@ -229,6 +232,18 @@ export async function buildApp(config:Config,store:Store,discord:DiscordApi,bot?
   });
   function eventService() {if(!events)throw new HttpError(503,'Events are not available.');return events;}
   function tutorialService() {if(!tutorials)throw new HttpError(503,'Member tutorials are not available.');return tutorials;}
+  function instagramService(){if(!instagram)throw new HttpError(503,'Instagram settings are not available.');return instagram;}
+  app.get('/api/guilds/:guildId/instagram',async request=>{
+    const c=await context(request,'instagram.manage');return {settings:instagramService().store.get(c.guild.id)};
+  });
+  app.get('/api/guilds/:guildId/instagram/options',async request=>{
+    const c=await context(request,'instagram.manage');return {options:await instagramService().transport.options(c.guild.id)};
+  });
+  app.put('/api/guilds/:guildId/instagram',{config:{rateLimit:{max:10,timeWindow:'1 minute'}}},async request=>{
+    const c=await context(request,'instagram.manage');
+    if(!c.access.permissions.includes('messages.send'))throw new HttpError(403,'Send channel messages permission is also required to configure announcements.');
+    return {settings:await instagramService().save(c.guild.id,c.data.user.id,instagramSettingsSchema.parse(request.body))};
+  });
   app.get('/api/guilds/:guildId/tutorial',async request=>{
     const c=await context(request,'tutorial.manage');return tutorialService().editor(c.guild.id);
   });

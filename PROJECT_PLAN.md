@@ -82,3 +82,11 @@ Saving checkpoint: five-hour allowance reached 100% used; weekly 16% used. Andre
 ## Instagram URL checkpoint — 2026-09-11
 
 Andrew resumed and reported 90% usage, interpreted as 90% used. The live allowance tool is unavailable in this session; do not invent remaining percentages. Completed a small standalone Instagram post/reel URL recognizer with canonical tracking-free links, duplicate handling, strict host/path checks, and bounded message/candidate processing. No gateway, message-reading intent, website configuration, or announcements were activated. See docs/INSTAGRAM_CHECKPOINT.md for the contract and next implementation step. Seven focused tests and both typechecks pass. Save to GitHub and pause here; credits remain authorized only for completing the save.
+
+## Instagram settings checkpoint — 2026-09-11
+
+Andrew reported 66% usage, treated as used; the live usage meter remains unavailable. Added encrypted per-server Instagram configuration, selected source/destination channels, static embed title/description/color, revision conflict protection, fresh bot permissions, and an accessible website editor. Read requires instagram.manage; write also messages.send and live Administrator/owner. Settings are setup-only and cannot activate posting. No gateway intents/message collection were added. All 216 automated tests, both typechecks, and production build pass.
+
+NEXT: implement controlled Instagram gateway/delivery with durable deduplication and uncertainty handling, confirm source/destination audience policy, then explicit enable/setup requirements. Existing settings must never silently activate on upgrade. Audit remains separate and unimplemented; leveling questionnaire and final installation PDF remain later. Save this checkpoint and pause; credits are authorized only to finish saving.
+
+Browser verification passed with simulated Discord: settings save, normalized color, source/destination separation, inactive status, unsaved navigation warning, conflict retention/reload, escaped preview, keyboard navigation, and 390px layout without overflow. Screenshot: docs/design/instagram-settings-verified.png. The temporary preview is stopped. Live Discord remains untested.

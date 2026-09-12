@@ -23,6 +23,8 @@ These website profiles limit access to this dashboard. Discord Administrator sti
 | Create an event with its announcement | Manage events **and** Send channel messages |
 | Send a confirmed event's missing announcement | Manage events **and** Send channel messages |
 | Write, publish, unpublish, or clear channel instructions | Edit member tutorial |
+| View Instagram setup | Manage Instagram |
+| Save Instagram channels and embed setup (posting unavailable) | Manage Instagram **and** Send channel messages |
 | Change eligible lower roles' website access | Manage lower roles, subject to the rules below |
 | Skip or reset your administrator walkthrough | Any signed-in administrator; this only changes your own progress |
 
@@ -82,6 +84,6 @@ If an event exists but its announcement definitely failed, fix the bot permissio
 
 ## Features still in development
 
-Read message audit and Export message audit are reserved for the separate feature/message-audit branch. Granting them does not start server-chat collection on main. Manage Instagram is also reserved until that feature is implemented.
+Read message audit and Export message audit are reserved for the separate feature/message-audit branch. Granting them does not start server-chat collection on main. Manage Instagram now opens the setup editor; automatic posting is still unavailable.
 
 See [setup notes](SETUP.md), [security details](../SECURITY.md), and the [project checkpoint](../PROJECT_PLAN.md). The final illustrated Raspberry Pi installation PDF will include the completed release's permission setup.

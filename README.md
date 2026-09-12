@@ -15,6 +15,7 @@ A Raspberry Pi-friendly Discord management bot and accessible administration web
 - Encrypted DM text and attachment metadata, retained for 90 days. Authorized administrators can read conversations, review and send replies, check delivery status, and close conversations. Attachment files are not downloaded or archived; Discord links can expire.
 - Website-created external, voice, and Stage events with a reviewed announcement, optional PNG/JPEG graphic and accessible description, separate delivery statuses, and safe recovery of a failed announcement.
 - Channel-by-channel tutorial editor with encrypted drafts, publication controls, text preview, and conflict protection. Members use private `/tutorial` with Previous/Next/Close and fresh channel access checks; controls expire after ten minutes.
+- Instagram post/reel URL recognition and per-server setup editor with selected source/destination channels and custom embed text/color. Automatic posting is not implemented yet.
 - SQLite activity retention and automated security/behavior checks. Server-channel message audit and exports remain a later stage.
 
 ## Local development

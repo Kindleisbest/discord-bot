@@ -11,16 +11,17 @@ import { Inbox } from './pages/Inbox';
 import { Events } from './pages/Events';
 import { Permissions } from './pages/Permissions';
 import { TutorialPage } from './pages/TutorialPage';
+import { Instagram } from './pages/Instagram';
 import { useGuildDetail, useGuilds, useSession } from './useWorkspace';
 
-const PAGES: Page[] = ['overview', 'messages', 'inbox', 'events', 'tutorial', 'permissions', 'setup', 'accessibility', 'privacy'];
+const PAGES: Page[] = ['overview', 'messages', 'inbox', 'events', 'tutorial', 'instagram', 'permissions', 'setup', 'accessibility', 'privacy'];
 function readPage(): Page { const hash = window.location.hash.slice(1); return PAGES.includes(hash as Page) ? hash as Page : 'overview'; }
 
 export function App() {
   const [page, setPage] = useState<Page>(readPage);
   const currentPage = useRef(page);
-  const unsavedTutorial = useRef(false);
-  const onTutorialUnsavedChange = useCallback((unsaved: boolean) => { unsavedTutorial.current = unsaved; }, []);
+  const unsavedChanges = useRef(false);
+  const onUnsavedChange = useCallback((unsaved: boolean) => { unsavedChanges.current = unsaved; }, []);
   const auth = useSession();
   const { setSession } = auth;
   const [selectedGuild, setSelectedGuild] = useState('');
@@ -37,7 +38,7 @@ export function App() {
   useEffect(() => {
     function navigate() {
       const nextPage = readPage();
-      if (nextPage !== currentPage.current && unsavedTutorial.current && !window.confirm('Leave this page and discard your unsaved tutorial changes?')) {
+      if (nextPage !== currentPage.current && unsavedChanges.current && !window.confirm('Leave this page and discard your unsaved changes?')) {
         window.history.replaceState(null, '', `#${currentPage.current}`); return;
       }
       currentPage.current = nextPage; setPage(nextPage); setNotice(''); document.getElementById('main-content')?.focus();
@@ -45,11 +46,11 @@ export function App() {
     window.addEventListener('hashchange', navigate);
     return () => window.removeEventListener('hashchange', navigate);
   }, []);
-  useEffect(() => { document.title = `${page === 'overview' ? 'Overview' : page === 'messages' ? 'Messages' : page === 'inbox' ? 'Staff inbox' : page === 'events' ? 'Events' : page === 'tutorial' ? 'Member tutorial' : page === 'permissions' ? 'Permissions' : page === 'setup' ? 'Setup guide' : page === 'accessibility' ? 'Accessibility statement' : 'Privacy & retention'} — Discord Bot`; }, [page]);
+  useEffect(() => { document.title = `${page === 'overview' ? 'Overview' : page === 'messages' ? 'Messages' : page === 'inbox' ? 'Staff inbox' : page === 'events' ? 'Events' : page === 'tutorial' ? 'Member tutorial' : page === 'instagram' ? 'Instagram' : page === 'permissions' ? 'Permissions' : page === 'setup' ? 'Setup guide' : page === 'accessibility' ? 'Accessibility statement' : 'Privacy & retention'} — Discord Bot`; }, [page]);
 
   async function logout() {
     if (!auth.session || loggingOut) return;
-    if (unsavedTutorial.current && !window.confirm('Sign out and discard your unsaved tutorial changes?')) return;
+    if (unsavedChanges.current && !window.confirm('Sign out and discard your unsaved changes?')) return;
     setLoggingOut(true); setActionError('');
     try {
       await api('/auth/logout', { method: 'POST', csrfToken: auth.session.csrfToken });
@@ -67,7 +68,7 @@ export function App() {
     finally { setResettingTutorial(false); }
   }
   function changeGuild(id: string) {
-    if (id !== selectedGuild && unsavedTutorial.current && !window.confirm('Change servers and discard your unsaved tutorial changes?')) return;
+    if (id !== selectedGuild && unsavedChanges.current && !window.confirm('Change servers and discard your unsaved changes?')) return;
     setSelectedGuild(id); setNotice(''); setActionError('');
   }
 
@@ -75,7 +76,7 @@ export function App() {
   return <Shell page={page} session={auth.session} guilds={guilds.guilds} selectedGuild={selectedGuild} onGuildChange={changeGuild} onLogout={() => void logout()} loggingOut={loggingOut} onResetTutorial={() => void resetTutorial()}>
     {actionError ? <ErrorNotice message={actionError} /> : null}
     {notice ? <p className="success-notice" role="status">{notice}</p> : null}
-    {infoPage ? <Information page={page} /> : auth.loading ? <Loading>Checking your connection…</Loading> : auth.error ? <ErrorNotice message={auth.error} retry={auth.retry} /> : !auth.session ? <Landing configured={auth.status?.configured ?? false} permissions={page === 'permissions'} /> : guilds.loading ? <Loading>Checking your server access…</Loading> : guilds.error ? <ErrorNotice message={guilds.error} retry={guilds.retry} /> : guilds.guilds.length === 0 ? <><div className="page-heading"><h1>No eligible servers yet</h1><p>Your Discord account is signed in, but no accessible server was found.</p></div><div className="empty-state"><h2>Check your server setup</h2><p>The bot must be installed in the server, and you must own it or have Discord’s Administrator permission.</p><button className="button button-outline" onClick={guilds.retry}>Check server access again</button></div></> : !selectedGuild ? <><div className="page-heading"><h1>Choose your server</h1><p>Use the Server menu above to open a workspace.</p></div><p className="supporting-note">Activity and website permissions are kept separate for every server.</p></> : guild.loading || (!guild.detail && !guild.error) ? <Loading>Loading this server’s workspace…</Loading> : guild.error ? <ErrorNotice message={guild.error} retry={guild.refresh} /> : guild.detail ? page === 'permissions' ? <Permissions key={guild.detail.guild.id} detail={guild.detail} csrfToken={auth.session.csrfToken} onAccessError={onAccessError} onSaved={() => { setNotice('Permissions saved. Current Discord access is being checked again.'); guild.refresh(); }} /> : page === 'messages' ? <Messages key={guild.detail.guild.id} detail={guild.detail} csrfToken={auth.session.csrfToken} onAccessError={onAccessError} /> : page === 'inbox' ? <Inbox key={guild.detail.guild.id} detail={guild.detail} csrfToken={auth.session.csrfToken} onAccessError={onAccessError} /> : page === 'events' ? <Events key={guild.detail.guild.id} detail={guild.detail} csrfToken={auth.session.csrfToken} onAccessError={onAccessError} /> : page === 'tutorial' ? <TutorialPage key={guild.detail.guild.id} detail={guild.detail} csrfToken={auth.session.csrfToken} onAccessError={onAccessError} onUnsavedChange={onTutorialUnsavedChange} /> : <Overview key={guild.detail.guild.id} detail={guild.detail} onAccessError={onAccessError} /> : null}
+    {infoPage ? <Information page={page} /> : auth.loading ? <Loading>Checking your connection…</Loading> : auth.error ? <ErrorNotice message={auth.error} retry={auth.retry} /> : !auth.session ? <Landing configured={auth.status?.configured ?? false} permissions={page === 'permissions'} /> : guilds.loading ? <Loading>Checking your server access…</Loading> : guilds.error ? <ErrorNotice message={guilds.error} retry={guilds.retry} /> : guilds.guilds.length === 0 ? <><div className="page-heading"><h1>No eligible servers yet</h1><p>Your Discord account is signed in, but no accessible server was found.</p></div><div className="empty-state"><h2>Check your server setup</h2><p>The bot must be installed in the server, and you must own it or have Discord’s Administrator permission.</p><button className="button button-outline" onClick={guilds.retry}>Check server access again</button></div></> : !selectedGuild ? <><div className="page-heading"><h1>Choose your server</h1><p>Use the Server menu above to open a workspace.</p></div><p className="supporting-note">Activity and website permissions are kept separate for every server.</p></> : guild.loading || (!guild.detail && !guild.error) ? <Loading>Loading this server’s workspace…</Loading> : guild.error ? <ErrorNotice message={guild.error} retry={guild.refresh} /> : guild.detail ? page === 'permissions' ? <Permissions key={guild.detail.guild.id} detail={guild.detail} csrfToken={auth.session.csrfToken} onAccessError={onAccessError} onSaved={() => { setNotice('Permissions saved. Current Discord access is being checked again.'); guild.refresh(); }} /> : page === 'messages' ? <Messages key={guild.detail.guild.id} detail={guild.detail} csrfToken={auth.session.csrfToken} onAccessError={onAccessError} /> : page === 'inbox' ? <Inbox key={guild.detail.guild.id} detail={guild.detail} csrfToken={auth.session.csrfToken} onAccessError={onAccessError} /> : page === 'events' ? <Events key={guild.detail.guild.id} detail={guild.detail} csrfToken={auth.session.csrfToken} onAccessError={onAccessError} /> : page === 'instagram' ? <Instagram key={guild.detail.guild.id} detail={guild.detail} csrfToken={auth.session.csrfToken} onAccessError={onAccessError} onUnsavedChange={onUnsavedChange} /> : page === 'tutorial' ? <TutorialPage key={guild.detail.guild.id} detail={guild.detail} csrfToken={auth.session.csrfToken} onAccessError={onAccessError} onUnsavedChange={onUnsavedChange} /> : <Overview key={guild.detail.guild.id} detail={guild.detail} onAccessError={onAccessError} /> : null}
     {auth.session && !auth.session.onboarding.completed ? <Onboarding session={auth.session} onAccessError={onAccessError} onChange={onboarding => setSession(current => current ? { ...current, onboarding } : null)} /> : null}
   </Shell>;
 }

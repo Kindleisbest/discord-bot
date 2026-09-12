@@ -1,8 +1,8 @@
-import { BookOpen, CalendarDays, Home, LogOut, MessageSquare, Inbox, Users } from 'lucide-react';
+import { BookOpen, CalendarDays, Home, LogOut, MessageSquare, Inbox, Camera, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { GuildSummary, Session } from '../api';
 
-export type Page = 'overview' | 'messages' | 'inbox' | 'events' | 'tutorial' | 'permissions' | 'setup' | 'accessibility' | 'privacy';
+export type Page = 'overview' | 'messages' | 'inbox' | 'events' | 'tutorial' | 'instagram' | 'permissions' | 'setup' | 'accessibility' | 'privacy';
 
 export function Shell({ children, page, session, guilds, selectedGuild, onGuildChange, onLogout, onResetTutorial, loggingOut }: {
   children: ReactNode; page: Page; session: Session | null; guilds: GuildSummary[]; selectedGuild: string;
@@ -18,6 +18,7 @@ export function Shell({ children, page, session, guilds, selectedGuild, onGuildC
         <a className={`nav-link ${page === 'inbox' ? 'selected' : ''}`} href="#inbox" aria-current={page === 'inbox' ? 'page' : undefined}><Inbox aria-hidden="true" />Staff inbox</a>
         <a className={`nav-link ${page === 'events' ? 'selected' : ''}`} href="#events" aria-current={page === 'events' ? 'page' : undefined}><CalendarDays aria-hidden="true" />Events</a>
         <a className={`nav-link ${page === 'tutorial' ? 'selected' : ''}`} href="#tutorial" aria-current={page === 'tutorial' ? 'page' : undefined}><BookOpen aria-hidden="true" />Member tutorial</a>
+        <a className={`nav-link ${page === 'instagram' ? 'selected' : ''}`} href="#instagram" aria-current={page === 'instagram' ? 'page' : undefined}><Camera aria-hidden="true" />Instagram</a>
         <a className={`nav-link ${page === 'permissions' ? 'selected' : ''}`} href="#permissions" aria-current={page === 'permissions' ? 'page' : undefined}><Users aria-hidden="true" />Permissions</a>
       </nav>
       <p className="sidebar-note">Your servers, clearly separated.</p>

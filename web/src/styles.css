@@ -336,3 +336,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
 }
+
+.instagram-sources { max-height: 320px; overflow-y: auto; margin-bottom: 8px; }
+.instagram-sources .checkbox-row span { overflow-wrap: anywhere; }
