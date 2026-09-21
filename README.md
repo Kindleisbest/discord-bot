@@ -38,7 +38,7 @@ The optional frontend development server is `npm run dev:web`; the backend is `n
 
 Server-channel chat auditing is developed separately on [`feature/message-audit`](https://github.com/Kindleisbest/discord-bot/tree/feature/message-audit). Keep its message collection, audit storage/views, and audit exports off `main` until Andrew explicitly approves merging it for release. The existing private staff DM inbox and administration activity remain on `main`. The audit implementation has not started yet.
 
-See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete request and current resume point. Remaining work includes the 90-day server-channel message audit and exports, leveling after the questionnaire, deployment hardening, and the final illustrated Raspberry Pi installation PDF.
+See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the complete request and current resume point. Leveling requirements and exact progression calculations are saved; XP earning, storage, rewards, commands, and website controls remain to be built. Other remaining work includes the separate 90-day server-channel message audit and exports, deployment hardening, and the final illustrated Raspberry Pi installation PDF.
 
 Tests use a fake Discord adapter to exercise security decisions without credentials. Live OAuth, a Discord test server, Raspberry Pi load, and public deployment still require validation. No claim of complete security or accessibility certification is made.
 
