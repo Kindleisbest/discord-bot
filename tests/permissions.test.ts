@@ -240,3 +240,34 @@ test('permission decisions and grant checks never mutate their input', () => {
   assert.deepEqual(input, original);
   assert.equal(resolveAccess(input).permissions.includes('settings.manage'), false);
 });
+
+test('each leveling grant remains independent and is not implied by general settings', () => {
+  const grants: Permission[] = ['leveling.view', 'leveling.adjust', 'leveling.manage'];
+  for (const permission of grants) {
+    const input = fixture({grants: [{roleId: ADMIN, permissions: [permission]}]});
+    assert.deepEqual(resolveAccess(input).permissions, ['activity.view', permission]);
+  }
+  const input = fixture({grants: [{roleId: ADMIN, permissions: ['settings.manage']}]});
+  assert.ok(grants.every(permission => !resolveAccess(input).permissions.includes(permission)));
+});
+
+test('leveling grants never replace current Administrator access or server isolation', () => {
+  const input = fixture({grants: [{roleId: ADMIN, permissions: ['leveling.view', 'leveling.adjust', 'leveling.manage']}]});
+  input.roles[1].permissions = '0';
+  assert.equal(resolveAccess(input).allowed, false);
+  input.roles[1].permissions = '8';
+  input.guildId = '999999999999999999';
+  assert.equal(resolveAccess(input).allowed, false);
+});
+
+test('delegating leveling permissions preserves hierarchy and protects stronger grants', () => {
+  const input = fixture({grants: [{roleId: ADMIN, permissions: ['permissions.manage', 'leveling.view']}]});
+  assert.doesNotThrow(() => assertGrantChange(input, LOWER, ['leveling.view']));
+  assert.throws(() => assertGrantChange(input, LOWER, ['leveling.adjust']), /already have/);
+  assert.throws(() => assertGrantChange(input, LOWER, ['leveling.manage']), /already have/);
+  assert.throws(() => assertGrantChange(input, HIGHER, ['leveling.view']), /strictly below/);
+  input.grants.push({roleId: LOWER, permissions: ['leveling.manage']});
+  assert.throws(() => assertGrantChange(input, LOWER, ['leveling.view']), /protected/);
+  input.userId = OWNER;
+  assert.doesNotThrow(() => assertGrantChange(input, LOWER, ['leveling.view', 'leveling.adjust', 'leveling.manage']));
+});

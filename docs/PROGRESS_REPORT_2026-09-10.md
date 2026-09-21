@@ -19,14 +19,14 @@ The secure website foundation, channel messaging, private staff inbox, event cre
 | Events and graphics | Implemented; local tests pass | External, voice, and Stage event creation with announcement, optional graphic, separate results, and failed-announcement recovery. Live Discord verification remains. |
 | Member /tutorial | Implemented; local tests pass | Encrypted draft/published channel instructions, private navigation, live visibility checks, clear/unpublish, and protection against conflicting edits. |
 | Instagram announcements | Implemented; local tests pass | Explicit host/server enablement, selected sources and destination, custom link embeds, current permissions and audience checks, duplicate protection, and read-only 90-day outgoing history. |
-| Leveling system | Progression calculations implemented; feature incomplete | Exact increasing-level calculations and six new tests pass. Agreed: enabled by default when shipped, 10 XP, shared 30-second cooldown, no daily cap, all new human messages, received reactions on messages up to 30 days old, group voice rules, all-time leaderboard, separate website grants, automatic reward updates, private commands, and privacy safeguards. Polls/RSVPs are deferred. Earning, storage, rewards, commands, and website controls are not implemented yet. |
+| Leveling system | Calculations, settings persistence, and grants implemented; feature incomplete | Exact progression calculations, encrypted per-server settings, change reasons, and separate view/adjust/manage grants. Defaults are enabled when shipped, 10 XP, shared 30-second cooldown, and no daily cap. Member XP storage, earning, rewards, commands, and the settings editor remain. Polls/RSVPs are deferred. |
 | Raspberry Pi deployment | Planned | Pi 3 B+ is the target; installation, performance, service setup, backups, restoration, and device hardening remain. |
 | Free address and Cloudflare | Unresolved | A secure, no-subscription deployment approach still needs selecting and verification. No domain has been connected. |
 | Final installation PDF | Planned for the end | Detailed illustrated Raspberry Pi instructions based on the finished release, with suitable official video links. |
 
 ## Validation completed
 
-- The latest implementation passed **255 automated security and behavior tests**, both application type checks, and the production build on 21 September 2026. This includes six new progression tests for approved milestones, exact thresholds, very large XP totals, and invalid inputs.
+- The latest implementation passed **269 automated security and behavior tests**, both application type checks, and the production build on 21 September 2026. Leveling coverage includes exact progression, encrypted settings, strict validation, lost-update conflicts, transaction rollback, retention, disk persistence, and protected permission delegation.
 - Local browser checks passed simulated sign-in, staff inbox enablement, reading, reviewing and sending a reply, closing a conversation, retained history, and footer navigation.
 - Mobile testing at 390px width found no horizontal overflow; the tested inbox flow produced no browser errors.
 - Instagram browser checks passed enablement, saved versus draft status, safe source/destination selection, delivery history, conflicting edits, disabling during a simulated Discord outage, retained channel IDs, keyboard navigation, and mobile layout. Desktop/mobile screenshots were visually inspected.
@@ -44,7 +44,7 @@ Only credential placeholders are supplied. The GitHub repository is public; real
 
 ## Next work
 
-Build per-server leveling settings, separate website permissions, and durable XP storage next, followed by approved earning signals, role rewards, commands, and website controls. Poll-vote/event-RSVP XP is deferred at Andrew's request and should be discussed again later. Expected server/member scale is unknown; capacity must be measured on the Pi. The mistaken “got it working” update was withdrawn; live Discord and Raspberry Pi testing remain unconfirmed. Develop the server chat audit separately when requested. Complete deployment and release validation before writing the final installation PDF. The owner-only Pi Party Easter egg remains planned, with no implementation yet.
+Build durable member XP storage next, along with a settings service/editor that validates current Discord channels and roles, followed by approved earning signals, role rewards, and commands. The registered grants are available in the existing permission editor; the leveling settings editor is not available yet. Poll-vote/event-RSVP XP is deferred at Andrew's request and should be discussed again later. Expected server/member scale is unknown; capacity must be measured on the Pi. The mistaken “got it working” update was withdrawn; live Discord and Raspberry Pi testing remain unconfirmed. Develop the server chat audit separately when requested. Complete deployment and release validation before writing the final installation PDF. The owner-only Pi Party Easter egg remains planned, with no implementation yet.
 
 ## Project records
 
@@ -56,5 +56,6 @@ Build per-server leveling settings, separate website permissions, and durable XP
 - [Instagram posting and history screenshot — simulated data](design/instagram-posting-verified.png)
 - [Instagram setup, limits, and remaining live verification](INSTAGRAM_CHECKPOINT.md)
 - [Leveling requirements questionnaire](LEVELING_QUESTIONNAIRE.md)
+- [Leveling implementation checkpoint](LEVELING_CHECKPOINT.md)
 
 Instagram remains disabled until both the host and an authorized server administrator explicitly enable it. Posts use canonical links and custom text; Instagram media and captions are not fetched. Delivery can be skipped for permission, workload, rate, or capacity limits, and uncertain sends are never automatically replayed.

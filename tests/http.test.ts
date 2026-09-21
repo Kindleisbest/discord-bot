@@ -133,3 +133,23 @@ test('message routes enforce website grants and CSRF before any bot send',async(
     assert.equal((await f.app.inject({url:`${url}/${body.requestId}`,headers:f.headers})).statusCode,403);
   }finally{await f.close();}
 });
+
+test('leveling grants can be saved through the existing protected permission editor',async()=>{
+  const f=await fixture(false);try{
+    const url=`/api/guilds/${guildId}/permissions/${lowerRole}`;
+    const write=(permissions:string[],headers=f.headers)=>f.app.inject({method:'PUT',url,headers,payload:{permissions}});
+    f.store.setGrant(guildId,adminRole,['permissions.manage','leveling.view'],userId);
+    assert.equal((await write(['leveling.view'])).statusCode,200);
+    assert.deepEqual(f.store.getGrants(guildId).find(grant=>grant.roleId===lowerRole)?.permissions,['leveling.view']);
+    assert.equal((await write(['leveling.adjust'])).statusCode,403);
+    assert.equal((await write(['leveling.manage'])).statusCode,403);
+    assert.equal((await write([],{...f.headers,'x-csrf-token':'bad'})).statusCode,403);
+    assert.equal((await write([],{...f.headers,origin:'https://example.com'})).statusCode,403);
+    f.live.roles[1].permissions='0';
+    assert.equal((await write([])).statusCode,403);
+    f.live.guild.ownerId=userId;f.live.memberRoleIds=[];
+    assert.equal((await write(['leveling.view','leveling.adjust','leveling.manage'])).statusCode,200);
+    assert.deepEqual(f.store.getGrants(guildId).find(grant=>grant.roleId===lowerRole)?.permissions,['leveling.view','leveling.adjust','leveling.manage']);
+    assert.deepEqual(f.store.getGrants(otherGuild),[]);
+  }finally{await f.close();}
+});
