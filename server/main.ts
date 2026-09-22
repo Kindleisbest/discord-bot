@@ -25,6 +25,7 @@ import {createInstagramPostingTransport} from './instagram/posting.js';
 import {InstagramPostingService} from './instagram/service.js';
 import {attachInstagramGateway} from './instagram/gateway.js';
 import {LevelingSettingsStore} from './leveling/settings.js';
+import {LevelingMemberStore} from './leveling/members.js';
 
 process.umask(0o077);
 if (existsSync('.env')) loadEnvFile('.env');
@@ -39,6 +40,8 @@ const tutorialStore=new TutorialStore(store.db,vault,(...args)=>store.addActivit
 const instagramStore=new InstagramSettingsStore(store.db,vault,(...args)=>store.addActivity(...args));
 // Persistence foundation only: leveling has no earning listeners or settings routes yet.
 const levelingSettings=new LevelingSettingsStore(store.db,vault,(...args)=>store.addActivity(...args));
+const levelingMembers=new LevelingMemberStore(store.db,vault,levelingSettings);
+levelingMembers.prune();
 levelingSettings.prune();
 const instagramDeliveries=new InstagramDeliveryStore(store.db,vault);
 instagramDeliveries.prune();instagramDeliveries.recover();
@@ -46,7 +49,7 @@ eventStore.prune();eventStore.recover();
 store.prune();
 store.recoverPendingDeliveries();
 inboxStore.prune();inboxStore.recoverPendingReplies();
-const bot=createBot(config,{addActivity:(...args)=>store.addActivity(...args),removeGuild:id=>{levelingSettings.removeGuild(id);instagramDeliveries.removeGuild(id);instagramStore.removeGuild(id);tutorialStore.removeGuild(id);eventStore.removeGuild(id);inboxStore.removeGuild(id);store.removeGuild(id);}});
+const bot=createBot(config,{addActivity:(...args)=>store.addActivity(...args),removeGuild:id=>{levelingMembers.removeGuild(id);levelingSettings.removeGuild(id);instagramDeliveries.removeGuild(id);instagramStore.removeGuild(id);tutorialStore.removeGuild(id);eventStore.removeGuild(id);inboxStore.removeGuild(id);store.removeGuild(id);}});
 const inbox=new InboxService(inboxStore,createInboxTransport(bot.client),(...args)=>store.addActivity(...args));
 const inboxGateway=attachInboxGateway(bot.client,inbox);
 const events=new EventService(eventStore,createEventTransport(bot.client),(...args)=>store.addActivity(...args));
@@ -57,7 +60,7 @@ const instagram=new InstagramSettingsService(instagramStore,createInstagramSetti
 const instagramPosting=new InstagramPostingService(instagramStore,instagramDeliveries,instagramTransport,config.INSTAGRAM_LINKS_ENABLED,(...args)=>store.addActivity(...args));
 const instagramGateway=attachInstagramGateway(bot.client,instagramPosting,config.INSTAGRAM_LINKS_ENABLED);
 const app=await buildApp(config,store,new DiscordHttpApi(config),bot,inbox,events,tutorials,instagram,instagramDeliveries);
-const cleanup=setInterval(()=>{try {levelingSettings.prune();instagramDeliveries.prune();eventStore.prune();inboxStore.prune();store.prune();} catch {console.error('Scheduled data cleanup failed. Check storage and disk space.');}},60*60_000);
+const cleanup=setInterval(()=>{try {levelingMembers.prune();levelingSettings.prune();instagramDeliveries.prune();eventStore.prune();inboxStore.prune();store.prune();} catch {console.error('Scheduled data cleanup failed. Check storage and disk space.');}},60*60_000);
 cleanup.unref();
 let stopping=false;
 async function shutdown() {

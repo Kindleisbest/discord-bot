@@ -1,6 +1,6 @@
 # Leveling requirements — confirmed choices and remaining questions
 
-Prepared 12 September 2026; updated 21 September 2026. Andrew requested detailed questions before implementation. The progression formula, encrypted settings storage, and separate permission grants are implemented; member XP storage, earning, rewards, commands, and the settings editor are not implemented yet. See [the implementation checkpoint](LEVELING_CHECKPOINT.md). Unanswered product choices remain unset. Existing Discord login, Administrator/owner access, server isolation, and security requirements still apply.
+Prepared 12 September 2026; updated 22 September 2026. Andrew requested detailed questions before implementation. The progression formula, encrypted settings/member storage, internal award/privacy safeguards, and separate permission grants are implemented; live earning, rewards, commands, and the settings editor are not implemented yet. See [the implementation checkpoint](LEVELING_CHECKPOINT.md). Unanswered product choices remain unset. Existing Discord login, Administrator/owner access, server isolation, and security requirements still apply.
 
 ## Confirmed so far
 
@@ -96,7 +96,7 @@ Unanswered options do not authorize reward actions, channel collectors, or level
 ### Implementation sequence
 
 1. **Complete:** exact progression calculations in `shared/leveling.ts` and six focused tests in `tests/leveling.test.ts`, with no live activation. The full 255-test suite, both typechecks, and production build pass on 21 September 2026.
-2. **In progress:** encrypted per-server settings persistence and separate view/adjust/manage grants are implemented. Settings routes/editor and fresh Discord channel/role validation remain, as do durable exact member XP, opt-out preferences, departure retention, and atomic shared cooldown enforcement. Validate numeric input sizes before arbitrary-precision arithmetic. Serialize XP and levels as decimal strings in storage/API contracts.
+2. **In progress:** encrypted per-server settings, separate view/adjust/manage grants, exact member XP, opt-out preferences, departure retention, and atomic shared cooldown/deduplication primitives are implemented. Settings routes/editor, fresh Discord channel/role validation, and live membership lifecycle handling remain. Member administration and leaderboard services also remain. Validate numeric input sizes before arbitrary-precision arithmetic. Serialize XP and levels as decimal strings in storage/API contracts. Temporary hashed duplicate receipts survive opt-out until their original expiry; XP and cooldown history are deleted immediately.
 3. Approved message/reply/forum, received-reaction, and group-voice intake with bounded queues, deduplication, fresh eligibility checks, and restart/reconnect handling. No poll/RSVP listeners or message-body archive.
 4. Bot-owned reward-role reconciliation and level-up announcements, including permission/hierarchy checks and failure recovery that never claims uncertain role ownership.
 5. Private readable member commands and accessible website controls, including reasons for administrative actions, owner-only server reset, and destructive-action confirmation.
